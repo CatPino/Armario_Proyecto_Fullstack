@@ -53,7 +53,6 @@ public class ProductoRestControllers {
    
     @PutMapping("/{id}/actualizar")
     public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @Valid @RequestBody ProductoRequest productoRequest) {
-
         Producto actualizado = productoServices.actualizarProducto(id, productoRequest);
         return ResponseEntity.ok(actualizado);
     }
@@ -118,10 +117,6 @@ public class ProductoRestControllers {
 
     return ResponseEntity.ok(productos);
 }
-
-    // -------------------------------------------------------------------------
-    // ⚠️ MOSTRAR STOCK Y DETECTAR SI ESTÁ BAJO (<5 unidades)
-    // -------------------------------------------------------------------------
     @GetMapping("/alertas-stock")
     public ResponseEntity<List<Producto>> obtenerProductosConStockBajo() {
         List<Producto> productos = productoServices.listarStockBajo();
