@@ -3,9 +3,9 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.inventario.backend_inventario.dto.ProductoRequest;
 import com.inventario.backend_inventario.entities.Producto;
 import com.inventario.backend_inventario.servicies.ProductoService;
+
+import jakarta.validation.Valid;
 
 
 
@@ -31,11 +34,10 @@ public class ProductoRestControllers {
     private ProductoService productoServices;
 
     @PostMapping
-    public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
-        Producto nuevoProducto = productoServices.crear(producto);
-        return ResponseEntity.ok(nuevoProducto);
+    public ResponseEntity<Producto> crearProducto(@Valid @RequestBody ProductoRequest productoRequest) {
+        Producto nuevoProducto = productoServices.crearProducto(productoRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoProducto);
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
         Producto producto = productoServices.obtenerId(id);
@@ -49,10 +51,11 @@ public class ProductoRestControllers {
         return ResponseEntity.ok(productos);
     }
    
-    @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarCategoria(@PathVariable Long id, @RequestBody Producto productoActualizado) {
-        Producto producto = productoServices.actualizar(id, productoActualizado);
-        return ResponseEntity.ok(producto);
+    @PutMapping("/{id}/actualizar")
+    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @Valid @RequestBody ProductoRequest productoRequest) {
+
+        Producto actualizado = productoServices.actualizarProducto(id, productoRequest);
+        return ResponseEntity.ok(actualizado);
     }
 
     @PutMapping("/{id}/estado")
