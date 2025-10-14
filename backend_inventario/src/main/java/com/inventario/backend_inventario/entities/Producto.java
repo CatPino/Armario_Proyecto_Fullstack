@@ -1,15 +1,8 @@
 package com.inventario.backend_inventario.entities;
 
 import java.time.LocalDate;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Data
@@ -19,24 +12,37 @@ import lombok.*;
 public class Producto {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank
     private String nombre;
+
+    @NotBlank
     private String descripcion;
+
+    @NotNull
+    @Positive
     private Long precio;
+
+    @NotNull
     private Long stock;
+
+    @NotBlank
     private String imagenUrl;
+
+    @NotNull
     private Boolean activo = true;
+
     private LocalDate fechaCreacion;
 
     @PrePersist
     public void asignarFechaCreacion() {
         this.fechaCreacion = LocalDate.now();
     }
-    
-    @ManyToOne
-    @JoinColumn(name="categoria_id")
-    @JsonBackReference
-    private Categoria categoria;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_id")
+    @NotNull
+    private Categoria categoria;
 }

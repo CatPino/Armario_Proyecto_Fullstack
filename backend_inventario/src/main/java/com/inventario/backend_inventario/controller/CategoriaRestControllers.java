@@ -5,10 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.inventario.backend_inventario.entities.Categoria;
 import com.inventario.backend_inventario.servicies.CategoriaService;
+
+import jakarta.validation.Valid;
 
 
 @CrossOrigin(origins = "http://localhost:5173")
@@ -21,7 +22,7 @@ public class CategoriaRestControllers {
     private CategoriaService categoriaServices;
 
     @PostMapping
-    public ResponseEntity<Categoria> crearCategoria(@RequestBody Categoria categoria) {
+    public ResponseEntity<Categoria> crearCategoria(@Valid @RequestBody Categoria categoria) {
         Categoria nuevaCategoria = categoriaServices.crear(categoria);
         return ResponseEntity.ok(nuevaCategoria);
     }
@@ -48,7 +49,7 @@ public class CategoriaRestControllers {
 
    
     @PutMapping("/{id}")
-    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Long id, @RequestBody Categoria categoriaActualizada) {
+    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Long id, @Valid @RequestBody Categoria categoriaActualizada) {
         Categoria categoria = categoriaServices.actualizar(id, categoriaActualizada);
         return ResponseEntity.ok(categoria);
     }
