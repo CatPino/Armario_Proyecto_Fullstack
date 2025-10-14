@@ -11,10 +11,10 @@ export function HomeSection() {
 
           <div className="carousel-inner">
             <div className="carousel-item active">
-              <img src="/img/fotoCarusel.1.png" alt="Slide 1" className="d-block w-100" />
+              <img src="/img/fotoCar1.png" alt="Slide 1" className="d-block w-100" />
             </div>
             <div className="carousel-item">
-              <img src="/img/fotoCarusel.2.png" alt="Slide 2" className="d-block w-100" />
+              <img src="/img/fotoCar"alt="Slide 2" className="d-block w-100" />
             </div>
           </div>
 

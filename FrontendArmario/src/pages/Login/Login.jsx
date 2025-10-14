@@ -1,13 +1,10 @@
-
-import { HomeSection } from '../../componentes/Homesection/HomeSection'
 import { Footer } from '../../componentes/Footer/Footer'
 
 
-export function Home(){
+export function Login(){
     
     return (
         <>
-            <HomeSection/>
             <Footer/>
         </>
     )
