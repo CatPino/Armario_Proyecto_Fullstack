@@ -1,11 +1,12 @@
-import {Navbar} from '../../componentes/Navbar/Navbar'
+import { Footer } from "../../componentes/Footer/Footer";
+
 
 export function Contacto(){
     
     return (
         <>
-            <Navbar/>
-            
+            <Footer/>
+
         </>
     )
 }

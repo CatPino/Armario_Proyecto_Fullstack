@@ -1,11 +1,11 @@
 import { Footer } from "../../componentes/Footer/Footer"
 
-export function Nosotros(){
+export function Registro(){
     
     return (
         <>
             <Footer/>
-            
+
         </>
     )
 }
