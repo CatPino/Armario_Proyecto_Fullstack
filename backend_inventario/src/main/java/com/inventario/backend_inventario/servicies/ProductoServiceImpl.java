@@ -7,11 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.inventario.backend_inventario.dto.ProductoRequest;
-import com.inventario.backend_inventario.entities.Categoria;
 import com.inventario.backend_inventario.entities.Producto;
-import com.inventario.backend_inventario.repositories.CategoriaRepositories;
 import com.inventario.backend_inventario.repositories.ProductoRepositories;
 
 
@@ -20,25 +16,10 @@ public class ProductoServiceImpl implements ProductoService{
 
     @Autowired
     private ProductoRepositories productoRepositories;
-    @Autowired
-    private CategoriaRepositories categoriaRepositories;
 
     @Override
-    public Producto crearProducto(ProductoRequest productoRequest) {
-        Producto nuevoProducto = new Producto();
-
-        nuevoProducto.setNombre(productoRequest.getNombre());
-        nuevoProducto.setDescripcion(productoRequest.getDescripcion());
-        nuevoProducto.setPrecio(productoRequest.getPrecio());
-        nuevoProducto.setStock(productoRequest.getStock());
-        nuevoProducto.setImagenUrl(productoRequest.getImagenUrl());
-        nuevoProducto.setActivo(true);
-
-        Categoria categoria = categoriaRepositories.findById(productoRequest.getCategoriaId())
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + productoRequest.getCategoriaId()));
-
-        nuevoProducto.setCategoria(categoria);
-        return productoRepositories.save(nuevoProducto);
+    public Producto crear(Producto producto){
+        return productoRepositories.save(producto);
     }
 
     @Override
@@ -53,33 +34,28 @@ public class ProductoServiceImpl implements ProductoService{
     }
 
     @Override
-    public Producto actualizarProducto(Long id, ProductoRequest productoRequest) {
-        Producto existente = productoRepositories.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+    public void eliminar(Long id) {
+        if (!productoRepositories.existsById(id)) {
+            throw new RuntimeException("Producto no encontrado");
+        }
+       productoRepositories.deleteById(id);
+    }
 
-        existente.setNombre(productoRequest.getNombre());
-        existente.setDescripcion(productoRequest.getDescripcion());
-        existente.setPrecio(productoRequest.getPrecio());
-        existente.setStock(productoRequest.getStock());
-        existente.setImagenUrl(productoRequest.getImagenUrl());
-
-        Categoria categoria = categoriaRepositories.findById(productoRequest.getCategoriaId())
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + productoRequest.getCategoriaId()));
-
-        existente.setCategoria(categoria);
-
+    @Override
+    public Producto actualizar(Long id, Producto productoActualizado) {
+        Producto existente = obtenerId(id);
+        existente.setDescripcion(productoActualizado.getDescripcion());
+        existente.setPrecio(productoActualizado.getPrecio());
         return productoRepositories.save(existente);
     }
 
     @Override
-    public Producto cambiarEstado(Long id, boolean nuevoEstado) {
+    public Producto desactivar(Long id){
         Producto producto = obtenerId(id);
-        if (producto != null) {
-            producto.setActivo(nuevoEstado);
-            return productoRepositories.save(producto);
-        }
-        return null;
+        producto.setActivo(false);
+        return productoRepositories.save(producto);
     }
+
 
     @Override
     public boolean validarStock(Long idProducto, int cantidadSolicitada) {
@@ -90,7 +66,7 @@ public class ProductoServiceImpl implements ProductoService{
     @Override
     public String subirImagen(Long idProducto, MultipartFile archivo) {
         try {
-            String ruta = "uploads/" + archivo.getOriginalFilename();
+            String ruta = "img/" + archivo.getOriginalFilename();
             File destino = new File(ruta);
             archivo.transferTo(destino);
 
