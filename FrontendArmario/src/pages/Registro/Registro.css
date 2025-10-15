@@ -1,0 +1,13 @@
+.container-register{
+      display:block;
+      max-width:700px;
+      margin:40px auto 60px;
+      text-align: left;   
+    }
+    .card-register{
+      background:#fff;
+      border-radius:15px;
+      height: auto;
+      box-shadow:0 8px 20px rgba(166,0,255,.36);
+      padding:30px 25px;
+    }
