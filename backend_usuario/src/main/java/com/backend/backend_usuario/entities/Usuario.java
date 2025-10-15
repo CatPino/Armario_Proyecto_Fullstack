@@ -5,41 +5,20 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(
-    name = "usuarios",
-    indexes = {
-        @Index(name = "idx_usuarios_rol_estado", columnList = "rol_id, estado"),
-        @Index(name = "idx_usuarios_rol_estado_fecha", columnList = "rol_id, estado, fecha_creacion")
+@Table(name = "usuarios",indexes = { @Index(name = "idx_usuarios_rol_estado", columnList = "rol_id, estado"), @Index(name = "idx_usuarios_rol_estado_fecha", columnList = "rol_id, estado, fecha_creacion")
     }
 )
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -69,11 +48,14 @@ public class Usuario {
     @JsonIgnore
     private String password;
 
-    // Muchos usuarios → un rol (cliente | super_admin | visitante)
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "rol_id", nullable = false)
-    @JsonBackReference
-    private Rol rol;
+    @Size(max = 20)
+    private String telefono;
+
+    @Size(max = 100)
+    private String region;
+
+    @Size(max = 100)
+    private String comuna;
 
     // Estado interno como boolean (MySQL: TINYINT(1)), por defecto true (activo)
     @Column(name = "estado", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
@@ -83,9 +65,11 @@ public class Usuario {
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @UpdateTimestamp
-    @Column(name = "fecha_actualizacion", nullable = false)
-    private LocalDateTime fechaActualizacion;
+    // Muchos usuarios → un rol (cliente | super_admin | visitante)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "rol_id", nullable = false)
+    @JsonBackReference
+    private Rol rol;
 
     @PrePersist
     public void prePersist() {
