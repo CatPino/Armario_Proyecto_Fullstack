@@ -1,0 +1,14 @@
+.container-login{
+      display:block;
+      max-width:450px;
+      margin:100px auto 100px;
+    }
+    .card-login{
+      background:#fff;
+      border-radius:15px;
+      box-shadow:0 8px 20px rgba(166,0,255,.36);
+      padding:30px 25px;
+      max-width:600px;
+      height:auto; 
+      margin:20px auto;
+    }
