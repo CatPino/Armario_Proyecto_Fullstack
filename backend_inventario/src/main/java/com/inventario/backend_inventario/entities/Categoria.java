@@ -6,7 +6,11 @@ import jakarta.persistence.GenerationType;
 import lombok.*;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Data
@@ -19,10 +23,12 @@ public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank
     private String nombre;
 
     @OneToMany(mappedBy = "categoria")
-    //@JsonManagedReference
+    @JsonIgnore
     private List<Producto> productos;
 
      

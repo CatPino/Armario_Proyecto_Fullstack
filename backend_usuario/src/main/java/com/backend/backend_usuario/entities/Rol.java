@@ -1,6 +1,8 @@
 package com.backend.backend_usuario.entities;
 
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +21,6 @@ public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     // "cliente" | "super_admin" | "visitante"
     @NotBlank
     @Size(min = 3, max = 50)
@@ -29,6 +30,10 @@ public class Rol {
     @Size(max = 200)
     @Column(length = 200)
     private String descripcion;
+
+    @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL, orphanRemoval = false)
+    @JsonIgnore
+    private List<Usuario> usuarios;
 
     @PrePersist @PreUpdate
     public void normalize() {

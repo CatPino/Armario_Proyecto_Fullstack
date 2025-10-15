@@ -1,6 +1,9 @@
 package com.inventario.backend_inventario.entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -34,12 +37,9 @@ public class Producto {
     @NotNull
     private Boolean activo = true;
 
-    private LocalDate fechaCreacion;
-
-    @PrePersist
-    public void asignarFechaCreacion() {
-        this.fechaCreacion = LocalDate.now();
-    }
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
