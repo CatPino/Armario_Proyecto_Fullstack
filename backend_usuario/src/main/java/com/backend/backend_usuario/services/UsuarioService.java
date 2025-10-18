@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.backend.backend_usuario.dto.SolicitudCrearUsuario;
 import com.backend.backend_usuario.entities.Rol;
 import com.backend.backend_usuario.entities.Usuario;
 import com.backend.backend_usuario.repositories.RolRepository;
@@ -20,30 +22,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuarioService {
 
+    @Autowired
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder encriptador;
 
     /* ======================= Crear ======================= */
     @Transactional
-    public Usuario crear(String nombre, String email, String passwordPlano, Long rolId, String rolNombre,
-            Boolean estado) {
-        String emailNorm = normalizarEmail(email);
+    public Usuario crearUsuarioCliente(SolicitudCrearUsuario req) {
+        String emailNorm = req.email().trim().toLowerCase();
+
         if (usuarioRepository.existeEmail(emailNorm)) {
             throw new DataIntegrityViolationException("El email ya está registrado");
         }
 
-        Rol rol = resolverRol(rolId, rolNombre);
-        if (rol == null)
-            throw new IllegalArgumentException("Rol no encontrado");
+        Rol rolCliente = rolRepository.buscarPorNombre("cliente")
+                .orElseThrow(() -> new IllegalArgumentException("Rol 'cliente' no encontrado en la base de datos"));
 
         Usuario u = new Usuario();
-        u.setNombre(nombre != null ? nombre.trim() : null);
+        u.setNombre(req.nombre().trim());
         u.setEmail(emailNorm);
-        u.setPassword(encriptador.encode(passwordPlano));
-        u.setRol(rol);
-        if (estado != null)
-            u.setEstado(estado); // por defecto true en la entidad
+        u.setPassword(encriptador.encode(req.password()));
+        u.setTelefono(req.telefono());
+        u.setRegion(req.region());
+        u.setComuna(req.comuna());
+        u.setEstado(true);
+        u.setRol(rolCliente);
 
         return usuarioRepository.save(u);
     }
@@ -80,12 +84,12 @@ public class UsuarioService {
         return usuarioRepository.obtenerActivoPorId(id);
     }
 
-    /* ======================= Actualizar (parcial) ======================= */
     @Transactional
     public Usuario actualizar(Long id, String nombre, String email, String passwordPlano, Long rolId, String rolNombre,
-            Boolean estado) {
-        Usuario u = usuarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                            Boolean estado, String telefono, String region, String comuna) {
+
+    Usuario u = usuarioRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         if (nombre != null && !nombre.isBlank())
             u.setNombre(nombre.trim());
@@ -101,6 +105,15 @@ public class UsuarioService {
         if (passwordPlano != null && !passwordPlano.isBlank()) {
             u.setPassword(encriptador.encode(passwordPlano));
         }
+
+        if (telefono != null && !telefono.isBlank())
+            u.setTelefono(telefono.trim());
+
+        if (region != null && !region.isBlank())
+            u.setRegion(region.trim());
+
+        if (comuna != null && !comuna.isBlank())
+            u.setComuna(comuna.trim());
 
         if (rolId != null || (rolNombre != null && !rolNombre.isBlank())) {
             Rol rol = resolverRol(rolId, rolNombre);
