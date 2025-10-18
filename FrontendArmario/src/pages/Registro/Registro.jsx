@@ -58,6 +58,38 @@ export function Registro() {
       });
     }
 
+    function mostrarError(id, msg) {
+    const input = document.getElementById(id);
+    const error = document.getElementById(`err-${id}`);
+    const ok = document.getElementById(`ok-${id}`);
+    if (!input) return;
+    input.classList.add("is-invalid");
+    input.classList.remove("is-valid");
+    if (error) error.textContent = msg || "Campo inválido";
+    if (ok) ok.textContent = "";
+  }
+
+  function mostrarOk(id, msg) {
+    const input = document.getElementById(id);
+    const error = document.getElementById(`err-${id}`);
+    const ok = document.getElementById(`ok-${id}`);
+    if (!input) return;
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid");
+    if (error) error.textContent = "";
+    if (ok) ok.textContent = msg || "✔️ Correcto";
+  }
+
+  function limpiarCampo(id) {
+    const input = document.getElementById(id);
+    const error = document.getElementById(`err-${id}`);
+    const ok = document.getElementById(`ok-${id}`);
+    if (!input) return;
+    input.classList.remove("is-invalid", "is-valid");
+    if (error) error.textContent = "";
+    if (ok) ok.textContent = "";
+  }
+
     // ✅ VALIDACIÓN DE CAMPOS
     function iniciarValidacion(formId) {
       const form = document.getElementById(formId);
@@ -153,18 +185,27 @@ export function Registro() {
       // 📤 ENVÍO DEL FORMULARIO AL BACKEND
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const boton = form.querySelector("button[type='submit']");
+      boton.disabled = true; // 🔒 evita doble clic
+      boton.textContent = "Registrando..."; // mensaje temporal
+
       campos.forEach(limpiarCampo);
 
       let valido = true;
       campos.forEach((id) => {
         if (!validarCampo(id)) valido = false;
       });
-      if (!valido) return;
+      if (!valido) {
+        boton.disabled = false;
+        boton.textContent = "Registrarse";
+        return;
+      }
 
-      // preparar datos del formulario (sin confirmaciones)
+      // preparar datos del formulario
       const datos = {
         nombre: obtener("nombre").value.trim(),
-        email: obtener("email").value.trim(),
+        email: obtener("email").value.trim().toLowerCase(),
         password: obtener("password").value,
         telefono: obtener("telefono").value.trim(),
         region: obtener("region").value,
@@ -172,28 +213,32 @@ export function Registro() {
       };
 
       try {
-        const respuesta = await fetch("http://localhost:8080/api/usuarios", { // 👈 usa el puerto real de tu backend
+        const respuesta = await fetch("http://localhost:8082/api/usuarios", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(datos),
         });
 
-        if (!respuesta.ok) {
+        if (respuesta.status === 409) {
+          alert("⚠️ Este correo ya está registrado.");
+        } else if (!respuesta.ok) {
           const errorMsg = await respuesta.text();
           alert("❌ Error al registrar usuario: " + errorMsg);
-          return;
+        } else {
+          alert("✅ Usuario registrado correctamente");
+          form.reset();
+          obtener("comuna").disabled = true;
+          window.location.href = "/Login";
         }
-
-        alert("✅ Usuario registrado correctamente");
-        form.reset();
-        obtener("comuna").disabled = true;
-        window.location.href = "/Login";
       } catch (error) {
         console.error("Error en el registro:", error);
-        alert("⚠️ No se pudo conectar con el servidor. Inténtalo más tarde.");
+        alert("❌ No se pudo conectar con el servidor. Inténtalo más tarde.");
+      } finally {
+        boton.disabled = false; // 🔓 vuelve a habilitar
+        boton.textContent = "Registrarse";
       }
     });
-    }
+  }
 
     // 🔁 EJECUTAR FUNCIONES
     cargarSelects("region", "comuna");
