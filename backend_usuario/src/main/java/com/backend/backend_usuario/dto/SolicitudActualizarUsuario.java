@@ -14,7 +14,18 @@ public record SolicitudActualizarUsuario(
     @Size(min = 8, max = 100)
     String password,
 
+    @Size(max = 20, message = "El teléfono no debe superar los 20 caracteres")
+    String telefono,
+
+    @Size(max = 80, message = "La región no debe superar los 80 caracteres")
+    String region,
+
+    @Size(max = 80, message = "La comuna no debe superar los 80 caracteres")
+    String comuna,
+
     Long rolId,
+
     String rolNombre,
+    
     Boolean estado
 ) {}

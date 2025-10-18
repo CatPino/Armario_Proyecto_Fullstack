@@ -151,43 +151,48 @@ export function Registro() {
       });
 
       // 📤 ENVÍO DEL FORMULARIO AL BACKEND
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        campos.forEach(limpiarCampo);
-        let valido = true;
-        campos.forEach((id) => {
-          if (!validarCampo(id)) valido = false;
-        });
-        if (!valido) return;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      campos.forEach(limpiarCampo);
 
-        // preparar datos del formulario
-        const datos = campos.reduce(
-          (acc, id) => ({ ...acc, [id]: obtener(id)?.value?.trim() || "" }),
-          {}
-        );
-
-        try {
-          const respuesta = await fetch("http://localhost:8081/api/usuarios", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(datos),
-          });
-
-          if (!respuesta.ok) {
-            const errorMsg = await respuesta.text();
-            alert("Error al registrar usuario: " + errorMsg);
-            return;
-          }
-
-          alert("Usuario registrado correctamente");
-          form.reset();
-          obtener("comuna").disabled = true;
-          window.location.href = "/Login";
-        } catch (error) {
-          console.error("Error en el registro:", error);
-          alert("No se pudo conectar con el servidor. Inténtalo más tarde.");
-        }
+      let valido = true;
+      campos.forEach((id) => {
+        if (!validarCampo(id)) valido = false;
       });
+      if (!valido) return;
+
+      // preparar datos del formulario (sin confirmaciones)
+      const datos = {
+        nombre: obtener("nombre").value.trim(),
+        email: obtener("email").value.trim(),
+        password: obtener("password").value,
+        telefono: obtener("telefono").value.trim(),
+        region: obtener("region").value,
+        comuna: obtener("comuna").value,
+      };
+
+      try {
+        const respuesta = await fetch("http://localhost:8080/api/usuarios", { // 👈 usa el puerto real de tu backend
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(datos),
+        });
+
+        if (!respuesta.ok) {
+          const errorMsg = await respuesta.text();
+          alert("❌ Error al registrar usuario: " + errorMsg);
+          return;
+        }
+
+        alert("✅ Usuario registrado correctamente");
+        form.reset();
+        obtener("comuna").disabled = true;
+        window.location.href = "/Login";
+      } catch (error) {
+        console.error("Error en el registro:", error);
+        alert("⚠️ No se pudo conectar con el servidor. Inténtalo más tarde.");
+      }
+    });
     }
 
     // 🔁 EJECUTAR FUNCIONES

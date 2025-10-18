@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.backend.backend_usuario.entities.Rol;
-import com.backend.backend_usuario.services.RolService;
+import com.backend.backend_usuario.services.RolServicelmpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,9 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RolController {
 
-    private final RolService rolService;
+    private final RolServicelmpl rolService;
 
-    /** 🟢 Crear un nuevo rol */
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody Rol req) {
         try {
@@ -32,13 +31,12 @@ public class RolController {
         }
     }
 
-    /** 🟡 Listar todos los roles (con búsqueda opcional) */
     @GetMapping
     public ResponseEntity<List<Rol>> listar(@RequestParam(required = false) String q) {
         return ResponseEntity.ok(rolService.listar(q));
     }
 
-    /** 🔵 Obtener rol por ID */
+
     @GetMapping("/{id}")
     public ResponseEntity<?> obtener(@PathVariable Long id) {
         try {
@@ -49,7 +47,6 @@ public class RolController {
         }
     }
 
-    /** 🟠 Actualizar un rol existente */
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Rol req) {
         try {
@@ -62,7 +59,6 @@ public class RolController {
         }
     }
 
-    /** 🔴 Eliminar un rol */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
