@@ -21,7 +21,7 @@ public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // "cliente" | "super_admin" | "visitante"
+
     @NotBlank
     @Size(min = 3, max = 50)
     @Column(nullable = false, unique = true, length = 50)
