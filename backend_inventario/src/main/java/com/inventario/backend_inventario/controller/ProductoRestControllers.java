@@ -3,7 +3,6 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,9 +21,6 @@ import com.inventario.backend_inventario.entities.Producto;
 import com.inventario.backend_inventario.servicies.ProductoService;
 
 import jakarta.validation.Valid;
-
-
-
 
 @CrossOrigin(origins = "http://localhost:5173")
 
