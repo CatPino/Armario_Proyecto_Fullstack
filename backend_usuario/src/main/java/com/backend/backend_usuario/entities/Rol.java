@@ -31,7 +31,7 @@ public class Rol {
     @Column(length = 200)
     private String descripcion;
 
-    @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL, orphanRemoval = false)
+    @OneToMany(mappedBy = "rol")
     @JsonIgnore
     private List<Usuario> usuarios;
 

@@ -51,4 +51,6 @@ public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
 
     @Query("SELECT COUNT(u) FROM Usuario u WHERE u.estado = false")
     long contarInactivos();
+
+    boolean existsByEmail(String email);
 }
