@@ -1,6 +1,7 @@
 package com.backend.backend_usuario.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,28 @@ public class UsuarioController {
         Usuario usuario = usuarioService.obtenerPorId(id);
         return ResponseEntity.ok(usuario);
     }
+
+    // ======================= LOGIN =======================
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
+        String email = req.get("email");
+        String password = req.get("password");
+
+        Usuario usuario = usuarioService.buscarPorEmail(email);
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("❌ Usuario no encontrado");
+        }
+
+        // Aquí asumo que usas BCrypt o similar en tu registro
+        if (!usuarioService.verificarPassword(password, usuario.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("❌ Contraseña incorrecta");
+        }
+
+    // Si llega aquí, el login fue exitoso
+    return ResponseEntity.ok(usuario);
+}
 
     // ======================= LISTAR TODOS =======================
     @GetMapping

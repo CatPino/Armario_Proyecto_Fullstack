@@ -52,5 +52,8 @@ public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
     @Query("SELECT COUNT(u) FROM Usuario u WHERE u.estado = false")
     long contarInactivos();
 
+    Optional<Usuario> findByEmail(String email);
+
+    // ✅ Saber si ya existe un correo registrado
     boolean existsByEmail(String email);
 }
