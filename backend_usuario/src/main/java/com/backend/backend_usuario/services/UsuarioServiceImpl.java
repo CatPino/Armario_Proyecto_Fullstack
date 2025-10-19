@@ -26,23 +26,36 @@ public class UsuarioServiceImpl implements UsuarioService {
     private PasswordEncoder passwordEncoder; 
 
     // ======================= CREAR =======================
-    @Override
+   @Override
     public Usuario crear(SolicitudCrearUsuario req) {
-        Usuario usuario = new Usuario();
-        usuario.setNombre(req.nombre());
-        usuario.setEmail(req.email().trim().toLowerCase());
-        usuario.setPassword(passwordEncoder.encode(req.password()));
-        usuario.setTelefono(req.telefono());
-        usuario.setRegion(req.region());
-        usuario.setComuna(req.comuna());
-        usuario.setEstado(true);
+    // 🔍 Validar que el correo venga con valor
+    if (req.email() == null || req.email().isBlank()) {
+        throw new RuntimeException("El correo electrónico no puede estar vacío.");
+    }
 
-        // Asignar rol (por defecto "cliente")
-        Rol rol = rolRepository.buscarPorNombre("cliente")
-                .orElseThrow(() -> new RuntimeException("Rol 'cliente' no encontrado"));
-        usuario.setRol(rol);
+    // 🔍 Normalizar el correo
+    String email = req.email().trim().toLowerCase();
 
-        return usuarioRepository.save(usuario);
+    // ✅ Verificar si ya existe realmente en la base
+    if (usuarioRepository.existsByEmail(email)) {
+        throw new RuntimeException("El correo electrónico ya está registrado.");
+    }
+
+    // 🧱 Crear el usuario normalmente
+    Usuario usuario = new Usuario();
+    usuario.setNombre(req.nombre());
+    usuario.setEmail(email);
+    usuario.setPassword(passwordEncoder.encode(req.password()));
+    usuario.setTelefono(req.telefono());
+    usuario.setRegion(req.region());
+    usuario.setComuna(req.comuna());
+    usuario.setEstado(true);
+
+    Rol rol = rolRepository.buscarPorNombre("cliente")
+            .orElseThrow(() -> new RuntimeException("Rol 'cliente' no encontrado"));
+    usuario.setRol(rol);
+
+    return usuarioRepository.save(usuario);
     }
 
     // ======================= OBTENER POR ID =======================

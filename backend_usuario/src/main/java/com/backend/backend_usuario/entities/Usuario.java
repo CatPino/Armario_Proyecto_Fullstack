@@ -38,7 +38,7 @@ public class Usuario {
     @NotBlank
     @Email
     @Size(max = 180)
-    @Column(nullable = false, unique = true, length = 180)
+    @Column(nullable = false, length = 180, unique = true)
     private String email;
 
     // Guardar ENCRIPTADA (BCrypt) desde el servicio antes de persistir.
