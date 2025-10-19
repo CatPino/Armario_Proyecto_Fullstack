@@ -9,6 +9,8 @@ import com.backend.backend_usuario.entities.Usuario;
 public interface UsuarioService {
     Usuario crear(SolicitudCrearUsuario req);
     Usuario obtenerPorId(Long id);
+    Usuario buscarPorEmail(String email);
+    boolean verificarPassword(String passwordPlano, String passwordHash);
     List<Usuario> listarTodos();
     Usuario actualizar(Long id, SolicitudActualizarUsuario req);
     void eliminar(Long id);

@@ -52,6 +52,16 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
+    @Override
+    public Usuario buscarPorEmail(String email) {
+    return usuarioRepository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    public boolean verificarPassword(String passwordPlano, String passwordHash) {
+        return passwordEncoder.matches(passwordPlano, passwordHash);
+    }
+
     // ======================= LISTAR =======================
     @Override
     public List<Usuario> listarTodos() {
