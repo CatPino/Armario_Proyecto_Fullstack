@@ -1,9 +1,55 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useSesion } from "../../componentes/MantenerSesion/MantenerSesion";
 
 export function Navbar() {
   const navigate = useNavigate();
-  const { usuario, logout } = useSesion(); // 👈 acceso al usuario y función para cerrar sesión
+  const [usuarioActivo, setUsuarioActivo] = useState(null);
+  const [rol, setRol] = useState(null);
+
+  useEffect(() => {
+    const cargarSesion = () => {
+      const guardado = localStorage.getItem("usuario");
+      if (guardado) {
+        try {
+          const user = JSON.parse(guardado);
+          const rolNormalizado =
+            typeof user.rol === "string"
+              ? user.rol.toLowerCase()
+              : user.rol?.nombre?.toLowerCase() || "cliente";
+          setUsuarioActivo(user);
+          setRol(rolNormalizado);
+        } catch {
+          setUsuarioActivo(null);
+          setRol(null);
+        }
+      } else {
+        setUsuarioActivo(null);
+        setRol(null);
+      }
+    };
+
+    cargarSesion();
+    window.addEventListener("storage", cargarSesion);
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function (key, value) {
+      originalSetItem.apply(this, arguments);
+      if (key === "usuario") cargarSesion();
+    };
+    return () => {
+      window.removeEventListener("storage", cargarSesion);
+      localStorage.setItem = originalSetItem;
+    };
+  }, []);
+
+  // ✅ Cerrar sesión
+  const handleLogout = () => {
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("rolUsuario");
+    localStorage.removeItem("nombreUsuario");
+    setUsuarioActivo(null);
+    setRol(null);
+    navigate("/");
+  };
 
   return (
     <>
@@ -29,27 +75,15 @@ export function Navbar() {
 
           {/* Iconos derecha */}
           <div className="iconos-navbar d-flex align-items-center gap-3">
-            {/* 🛒 Carrito */}
-            <div className="position-relative">
-              <button
-                type="button"
-                className="btn btn-transparent p-0"
-                data-bs-toggle="modal"
-                data-bs-target="#carritoModal"
-              >
-                <img src="/img/carrito1.png" alt="Carrito" />
-              </button>
+            <button
+              type="button"
+              className="btn btn-transparent p-0"
+              data-bs-toggle="modal"
+              data-bs-target="#carritoModal"
+            >
+              <img src="/img/carrito1.png" alt="Carrito" />
+            </button>
 
-              <span
-                id="cartCount"
-                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
-                style={{ fontSize: ".65rem" }}
-              >
-                0
-              </span>
-            </div>
-
-            {/* 👤 Usuario */}
             <button
               type="button"
               className="btn btn-transparent p-0"
@@ -64,9 +98,7 @@ export function Navbar() {
           <div className="collapse navbar-collapse" id="Menu">
             <ul className="navbar-nav mx-auto">
               <li className="nav-item">
-                <Link className="nav-link" to="/">
-                  Home
-                </Link>
+                <Link className="nav-link" to="/">Home</Link>
               </li>
               <li className="nav-item dropdown">
                 <Link
@@ -79,178 +111,107 @@ export function Navbar() {
                   Productos
                 </Link>
                 <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to="/productos">
-                      Todos los productos
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/poleras">
-                      Poleras
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/calzas">
-                      Calzas
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/faldas">
-                      Faldas
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/accesorios">
-                      Chockers
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/accesorios">
-                      Arnés
-                    </Link>
-                  </li>
+                  <li><Link className="dropdown-item" to="/productos">Todos los productos</Link></li>
+                  <li><Link className="dropdown-item" to="/poleras">Poleras</Link></li>
+                  <li><Link className="dropdown-item" to="/calzas">Calzas</Link></li>
+                  <li><Link className="dropdown-item" to="/faldas">Faldas</Link></li>
+                  <li><Link className="dropdown-item" to="/Chokers">Chokers</Link></li>
+                  <li><Link className="dropdown-item" to="/accesorios">Arnés</Link></li>
                 </ul>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/nosotros">
-                  Nosotros
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/blogs">
-                  Blogs
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/contacto">
-                  Contacto
-                </Link>
-              </li>
+              <li className="nav-item"><Link className="nav-link" to="/nosotros">Nosotros</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/blogs">Blogs</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/contacto">Contacto</Link></li>
+
+              {(rol === "admin" || rol === "administrador") && (
+                <>
+                  <li className="nav-item"><Link className="nav-link" to="/inventario">Inventario</Link></li>
+                  <li className="nav-item"><Link className="nav-link" to="/usuarios">Usuarios</Link></li>
+                </>
+              )}
             </ul>
           </div>
         </div>
       </nav>
 
-      {/* 🛒 Modal Carrito (sin cambios) */}
-      <div
-        className="modal fade"
-        id="carritoModal"
-        tabIndex="-1"
-        aria-labelledby="carritoModalLabel"
-        aria-hidden="true"
-      >
+      {/* === MODAL CARRITO === */}
+      <div className="modal fade" id="carritoModal" tabIndex="-1" aria-labelledby="carritoModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h2 className="modal-title" id="carritoModalLabel">
-                Carrito de Compras
-              </h2>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Cerrar"
-              ></button>
+              <h2 className="modal-title" id="carritoModalLabel">Carrito de Compras</h2>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-
             <div className="modal-body">
               <h3>No hay productos en el carrito.</h3>
             </div>
             <div className="modal-footer">
-              <button
-                type="button"
-                className="btn button2"
-                data-bs-dismiss="modal"
-              >
-                Cerrar
-              </button>
-              <button type="button" className="btn button1" disabled>
-                Ir al pago
-              </button>
+              <button type="button" className="btn button2" data-bs-dismiss="modal">Cerrar</button>
+              <button type="button" className="btn button1" disabled>Ir al pago</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 👤 Modal Usuario (dinámico según sesión) */}
-      <div
-        className="modal fade"
-        id="usuarioModal"
-        tabIndex="-1"
-        aria-labelledby="usuarioModalLabel"
-        aria-hidden="true"
-      >
+      {/* === MODAL USUARIO === */}
+      <div className="modal fade" id="usuarioModal" tabIndex="-1" aria-labelledby="usuarioModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content text-center">
+          <div className="modal-content">
             <div className="modal-header">
-              <h2
-                className="modal-title titulo w-100 text-center"
-                id="usuarioModalLabel"
-              >
-                Usuario
-              </h2>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Cerrar"
-              ></button>
+              <h2 className="modal-title titulo w-100 text-center" id="usuarioModalLabel">Usuario</h2>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
             <div className="modal-body text-center">
-              {/* Si HAY sesión activa */}
-              {usuario ? (
+              {!usuarioActivo ? (
                 <>
-                  <h3 className="mb-3">👋 Hola, {usuario.nombre}</h3>
-                  <p className="text-muted">
-                    Bienvenido de nuevo a <strong>Armario de Sombra</strong>.
-                  </p>
-
+                  <h3>Inicia sesión o regístrate.</h3>
                   <button
                     className="btn btn-sm w-50 d-block mx-auto mb-2 button1"
                     onClick={() => {
-                      navigate("/productos");
-                      const modal = bootstrap.Modal.getInstance(
+                      navigate("/Login");
+                      window.bootstrap.Modal.getInstance(
                         document.getElementById("usuarioModal")
-                      );
-                      modal?.hide();
+                      ).hide();
                     }}
-                  >
-                    Ir a comprar
-                  </button>
-
-                  <button
-                    className="btn btn-sm w-50 d-block mx-auto button2"
-                    onClick={() => {
-                      logout(); // cierra sesión
-                      const modal = bootstrap.Modal.getInstance(
-                        document.getElementById("usuarioModal")
-                      );
-                      modal?.hide(); // cierra modal
-                    }}
-                  >
-                    Cerrar sesión
-                  </button>
-                </>
-              ) : (
-                // Si NO hay sesión
-                <>
-                  <h3>Inicia sesión o regístrate</h3>
-                  <button
-                    className="btn btn-sm w-50 d-block mx-auto mb-2 button1"
-                    onClick={() => navigate("/Login")}
-                    data-bs-dismiss="modal"
                   >
                     Iniciar sesión
                   </button>
-
                   <button
                     className="btn btn-sm w-50 d-block mx-auto button2"
-                    onClick={() => navigate("/Registro")}
-                    data-bs-dismiss="modal"
+                    onClick={() => {
+                      navigate("/registro");
+                      window.bootstrap.Modal.getInstance(
+                        document.getElementById("usuarioModal")
+                      ).hide();
+                    }}
                   >
                     Regístrate
                   </button>
+                </>
+              ) : (
+                <>
+                  <h3>👋 Bienvenido, {usuarioActivo.nombre}</h3>
+                  <div className="d-flex justify-content-center gap-3 mt-3">
+                    <button
+                      className="btn button1"
+                      onClick={() => {
+                        navigate("/productos");
+                        window.bootstrap.Modal.getInstance(
+                          document.getElementById("usuarioModal")
+                        ).hide();
+                      }}
+                    >
+                      Ir a comprar 🛍️
+                    </button>
+                    <button
+                      className="btn button2"
+                      onClick={handleLogout}
+                      data-bs-dismiss="modal"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
                 </>
               )}
             </div>
