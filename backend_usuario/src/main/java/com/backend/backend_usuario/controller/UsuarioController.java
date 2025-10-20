@@ -48,18 +48,26 @@ public class UsuarioController {
         Usuario usuario = usuarioService.buscarPorEmail(email);
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("❌ Usuario no encontrado");
+                    .body(Map.of("error", "Usuario no encontrado"));
         }
 
-        // Aquí asumo que usas BCrypt o similar en tu registro
         if (!usuarioService.verificarPassword(password, usuario.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("❌ Contraseña incorrecta");
+                    .body(Map.of("error", "Contraseña incorrecta"));
         }
 
-    // Si llega aquí, el login fue exitoso
-    return ResponseEntity.ok(usuario);
-}
+        // ✅ Solo enviamos lo que el frontend necesita
+        Map<String, Object> respuesta = Map.of(
+            "id", usuario.getId(),
+            "nombre", usuario.getNombre(),
+            "email", usuario.getEmail(),
+            "rol", usuario.getRol().getNombre(),
+            "estado", usuario.isEstado()  // 👈 añadimos estado (activo/inactivo)
+        );
+
+        return ResponseEntity.ok(respuesta);
+    }
+
 
     // ======================= LISTAR TODOS =======================
     @GetMapping
