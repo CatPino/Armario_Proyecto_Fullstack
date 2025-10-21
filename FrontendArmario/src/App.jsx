@@ -8,7 +8,7 @@ import { Blogs } from './pages/Blogs/Blogs'
 import { Login } from './pages/Login/Login';
 import { Registro } from './pages/Registro/Registro';
 import { Navbar } from './componentes/Navbar/Navbar';
-
+import { AdministracionProductos } from './componentes/Admin/AdministracionProductos';
 //npm install react-router-dom
 
 function App() {
@@ -26,6 +26,7 @@ function App() {
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
+        <Route path="/admin/productos" element={<AdministracionProductos />} />
       </Routes>
     </Router>
     </>
