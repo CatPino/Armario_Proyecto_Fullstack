@@ -1,7 +1,7 @@
 import { Footer } from "../../componentes/Footer/Footer";
 import { ModalProductos } from "../../componentes/MostrarProductos/MostrarProductos";
 
-export function Productos() {
+export function Chokers() {
   return (
     <>
       <div className="container my-5">
@@ -10,10 +10,6 @@ export function Productos() {
         Dale a tu outfit un toque gótico auténtico. Cada prenda está diseñada para expresar tu
         personalidad con fuerza, combinando lo clásico y lo alternativo en cada detalle.
         </h2>
-        <ModalProductos categoriaNombre="Poleras" />
-        <ModalProductos categoriaNombre="Calzas" />
-        <ModalProductos categoriaNombre="Faldas" />
-        <ModalProductos categoriaNombre="Arnés" />
         <ModalProductos categoriaNombre="Chokers" />
       </div>
       <Footer />

@@ -4,7 +4,6 @@ import "./RegistroForm.css";
 
 export function RegistroForm() {
   useEffect(() => {
-    // 🗺️ REGIONES Y COMUNAS
     const comunasPorRegion = {
       "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
       "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"],
@@ -23,8 +22,6 @@ export function RegistroForm() {
       "Aysén": ["Coyhaique","Aysén","Cisnes","Guaitecas","Lago Verde","Cochrane","O’Higgins","Tortel","Chile Chico","Río Ibáñez"],
       "Magallanes y la Antártica": ["Punta Arenas","Laguna Blanca","Río Verde","San Gregorio","Natales","Torres del Paine","Porvenir","Primavera","Timaukel","Cabo de Hornos","Antártica"]
     };
-
-    // 👉 CARGAR SELECT DE REGIONES Y COMUNAS
     function cargarSelects(regionId, comunaId) {
       const regionSelect = document.getElementById(regionId);
       const comunaSelect = document.getElementById(comunaId);
@@ -87,12 +84,10 @@ export function RegistroForm() {
       if (ok) ok.textContent = "";
     }
 
-    // ✅ VALIDACIÓN DE CAMPOS
     function iniciarValidacion(formId) {
       const form = document.getElementById(formId);
       if (!form) return;
 
-      // 🚫 Evitar agregar el mismo listener dos veces
       if (form.dataset.listenerAdded === "true") return;
       form.dataset.listenerAdded = "true";
 
@@ -139,7 +134,6 @@ export function RegistroForm() {
         el.addEventListener("focus", () => limpiarCampo(id));
       });
 
-      // 📤 ENVÍO DEL FORMULARIO AL BACKEND
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const boton = form.querySelector("button[type='submit']");
@@ -182,16 +176,16 @@ export function RegistroForm() {
 
           if (respuesta.status === 409) {
             mensaje.classList.add("alert", "alert-warning");
-            mensaje.textContent = "⚠️ Este correo ya está registrado.";
+            mensaje.textContent = "Este correo ya está registrado.";
             form.appendChild(mensaje);
           } else if (!respuesta.ok) {
             const errorMsg = await respuesta.text();
             mensaje.classList.add("alert", "alert-danger");
-            mensaje.textContent = "❌ Error al registrar usuario: " + errorMsg;
+            mensaje.textContent = " Error al registrar usuario: " + errorMsg;
             form.appendChild(mensaje);
           } else {
             mensaje.classList.add("alert", "alert-success");
-            mensaje.textContent = "✅ Usuario registrado correctamente. Redirigiendo...";
+            mensaje.textContent = "Usuario registrado correctamente. Redirigiendo...";
             form.appendChild(mensaje);
             form.reset();
             obtener("comuna").disabled = true;
@@ -201,7 +195,7 @@ export function RegistroForm() {
           console.error("Error en el registro:", error);
           const mensaje = document.createElement("div");
           mensaje.className = "alert alert-danger mensaje-resultado mt-3";
-          mensaje.textContent = "❌ No se pudo conectar con el servidor. Inténtalo más tarde.";
+          mensaje.textContent = "No se pudo conectar con el servidor. Inténtalo más tarde.";
           form.appendChild(mensaje);
         } finally {
           boton.disabled = false;
@@ -209,8 +203,6 @@ export function RegistroForm() {
         }
       });
     }
-
-    // 🔁 EJECUTAR FUNCIONES
     cargarSelects("region", "comuna");
     iniciarValidacion("registroForm");
   }, []);

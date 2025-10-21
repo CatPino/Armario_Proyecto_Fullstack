@@ -41,7 +41,6 @@ export function Navbar() {
     };
   }, []);
 
-  // ✅ Cerrar sesión
   const handleLogout = () => {
     localStorage.removeItem("usuario");
     localStorage.removeItem("rolUsuario");
@@ -55,7 +54,7 @@ export function Navbar() {
     <>
       <nav className="navbar navbar-expand-sm mi-navbar position-relative">
         <div className="container-fluid">
-          {/* Botón hamburguesa */}
+
           <button
             className="navbar-toggler"
             type="button"
@@ -68,33 +67,21 @@ export function Navbar() {
             <img src="/img/Menu.png" alt="Menu" />
           </button>
 
-          {/* Logo */}
           <Link className="navbar-brand mx-auto order-0" to="/">
             <img src="/img/Logo.png" alt="Logo" width="60" />
           </Link>
 
-          {/* Iconos derecha */}
           <div className="iconos-navbar d-flex align-items-center gap-3">
-            <button
-              type="button"
-              className="btn btn-transparent p-0"
-              data-bs-toggle="modal"
-              data-bs-target="#carritoModal"
-            >
+            <button type="button" className="btn btn-transparent p-0" data-bs-toggle="modal" data-bs-target="#carritoModal">
               <img src="/img/carrito1.png" alt="Carrito" />
             </button>
 
             <button
-              type="button"
-              className="btn btn-transparent p-0"
-              data-bs-toggle="modal"
-              data-bs-target="#usuarioModal"
-            >
+              type="button" b className="btn btn-transparent p-0" data-bs-toggle="modal" data-bs-target="#usuarioModal">
               <img src="/img/user.png" alt="Usuario" />
             </button>
           </div>
 
-          {/* Menú principal */}
           <div className="collapse navbar-collapse" id="Menu">
             <ul className="navbar-nav mx-auto">
               <li className="nav-item">
@@ -116,7 +103,7 @@ export function Navbar() {
                   <li><Link className="dropdown-item" to="/calzas">Calzas</Link></li>
                   <li><Link className="dropdown-item" to="/faldas">Faldas</Link></li>
                   <li><Link className="dropdown-item" to="/Chokers">Chokers</Link></li>
-                  <li><Link className="dropdown-item" to="/accesorios">Arnés</Link></li>
+                  <li><Link className="dropdown-item" to="/Arnés">Arnés</Link></li>
                 </ul>
               </li>
               <li className="nav-item"><Link className="nav-link" to="/nosotros">Nosotros</Link></li>
@@ -126,7 +113,7 @@ export function Navbar() {
               {(rol === "admin" || rol === "administrador") && (
                 <>
                   <li className="nav-item"><Link className="nav-link" to="/inventario">Inventario</Link></li>
-                  <li className="nav-item"><Link className="nav-link" to="/usuarios">Usuarios</Link></li>
+                  <li className="nav-item"><Link className="nav-link" to="/usuario">Usuarios</Link></li>
                 </>
               )}
             </ul>
@@ -134,7 +121,7 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* === MODAL CARRITO === */}
+ 
       <div className="modal fade" id="carritoModal" tabIndex="-1" aria-labelledby="carritoModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -153,7 +140,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* === MODAL USUARIO === */}
+  
       <div className="modal fade" id="usuarioModal" tabIndex="-1" aria-labelledby="usuarioModalLabel" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
@@ -178,38 +165,28 @@ export function Navbar() {
                     Iniciar sesión
                   </button>
                   <button
-                    className="btn btn-sm w-50 d-block mx-auto button2"
-                    onClick={() => {
-                      navigate("/registro");
-                      window.bootstrap.Modal.getInstance(
-                        document.getElementById("usuarioModal")
-                      ).hide();
+                    className="btn btn-sm w-50 d-block mx-auto button2" onClick={() => { navigate("/registro"); window.bootstrap.Modal.getInstance(
+                    document.getElementById("usuarioModal")
+                    ).hide();
                     }}
-                  >
-                    Regístrate
+                  >Regístrate
                   </button>
                 </>
               ) : (
                 <>
                   <h3>👋 Bienvenido, {usuarioActivo.nombre}</h3>
                   <div className="d-flex justify-content-center gap-3 mt-3">
-                    <button
-                      className="btn button1"
-                      onClick={() => {
-                        navigate("/productos");
-                        window.bootstrap.Modal.getInstance(
-                          document.getElementById("usuarioModal")
-                        ).hide();
+                    <button className="btn button1" onClick={() => { navigate("/productos"); window.bootstrap.Modal.getInstance(
+                      document.getElementById("usuarioModal")
+                      ).hide();
                       }}
-                    >
-                      Ir a comprar 🛍️
+                    > Ir a comprar
                     </button>
                     <button
                       className="btn button2"
                       onClick={handleLogout}
                       data-bs-dismiss="modal"
-                    >
-                      Cerrar sesión
+                    > Cerrar sesión
                     </button>
                   </div>
                 </>

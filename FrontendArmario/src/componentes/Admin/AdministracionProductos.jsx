@@ -10,7 +10,6 @@ export function AdministracionProductos() {
   const [modo, setModo] = useState("crear");
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
-  // ======== Cargar productos ==========
   async function cargarProductos() {
     setCargando(true);
     setMensaje(null);
@@ -30,7 +29,6 @@ export function AdministracionProductos() {
     }
   }
 
-  // ======== Subir imagen ==========
   async function subirImagenProducto(id, archivo) {
     if (!archivo) return;
 
@@ -60,7 +58,6 @@ export function AdministracionProductos() {
     cargarProductos();
   }, []);
 
-  // ======== Filtrar productos ==========
   const filtrados = useMemo(() => {
     const texto = filtroTexto.toLowerCase().trim();
     const cat = filtroCategoria.trim();
@@ -149,7 +146,8 @@ export function AdministracionProductos() {
             <option>Poleras</option>
             <option>Calzas</option>
             <option>Faldas</option>
-            <option>Accesorios</option>
+            <option>Choker</option>
+            <option>Arnés</option>
           </select>
         </div>
         <div className="col-md-3">
