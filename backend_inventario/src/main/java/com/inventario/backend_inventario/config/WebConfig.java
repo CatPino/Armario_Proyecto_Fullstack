@@ -12,10 +12,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Ruta física a tu carpeta img
-        String rutaImgs = Paths.get("backend_inventario", "img")
-                               .toAbsolutePath()
-                               .toString()
-                               .replace("\\", "/");
+        String rutaImgs = Paths.get("img")
+                       .toAbsolutePath()
+                       .toString()
+                       .replace("\\", "/");
 
         // Expone la URL pública /img/** -> carpeta física
         registry.addResourceHandler("/img/**")
