@@ -66,17 +66,30 @@ public class ProductoServiceImpl implements ProductoService{
     @Override
     public String subirImagen(Long idProducto, MultipartFile archivo) {
         try {
-            String ruta = "img/" + archivo.getOriginalFilename();
-            File destino = new File(ruta);
-            archivo.transferTo(destino);
+            // 📁 Crear carpeta si no existe
+            String directorio = "img/";
+            File carpeta = new File(directorio);
+            if (!carpeta.exists()) carpeta.mkdirs();
 
+            // 🧾 Crear nombre único para evitar reemplazos accidentales
+            String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getOriginalFilename();
+            String rutaCompleta = directorio + nombreArchivo;
+
+            // 💾 Guardar el archivo físicamente
+            archivo.transferTo(new File(rutaCompleta));
+
+            // 🌐 Construir URL pública (gracias al WebMvcConfigurer)
+            String urlPublica = "http://localhost:8081/" + rutaCompleta;
+
+            // 🧠 Actualizar el producto con la nueva imagen
             Producto producto = obtenerId(idProducto);
             if (producto != null) {
-                producto.setImagenUrl(ruta);
+                producto.setImagenUrl(urlPublica);
                 productoRepositories.save(producto);
             }
 
-            return ruta;
+            return urlPublica;
+
         } catch (IOException e) {
             throw new RuntimeException("Error al subir imagen: " + e.getMessage());
         }
