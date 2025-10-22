@@ -71,7 +71,6 @@ export function AdministracionProductos() {
     });
   }, [productos, filtroTexto, filtroCategoria]);
 
-  // ======== Modal (crear / editar) ==========
   function abrirModalCrear() {
     setModo("crear");
     setProductoSeleccionado(null);
@@ -86,7 +85,6 @@ export function AdministracionProductos() {
     modal.show();
   }
 
-  // ======== Eliminar producto ==========
   async function eliminarProducto(id) {
     if (!confirm("¿Seguro que deseas eliminar este producto?")) return;
     try {
@@ -108,7 +106,6 @@ export function AdministracionProductos() {
     }
   }
 
-  // ======== Callback del modal ==========
   function onGuardar() {
     cargarProductos();
     const modal = bootstrap.Modal.getInstance(
@@ -117,7 +114,6 @@ export function AdministracionProductos() {
     modal.hide();
   }
 
-  // ======== Render ==========
   return (
     <div className="container my-4">
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -129,16 +125,14 @@ export function AdministracionProductos() {
 
       <div className="row g-2 mb-3 mt-2">
         <div className="col-md-3">
-          <input
-            value={filtroTexto}
+          <input value={filtroTexto}
             onChange={(e) => setFiltroTexto(e.target.value)}
             className="form-control"
             placeholder="Buscar por nombre/descripción"
           />
         </div>
         <div className="col-md-3">
-          <select
-            value={filtroCategoria}
+          <select value={filtroCategoria}
             onChange={(e) => setFiltroCategoria(e.target.value)}
             className="form-select"
           >
@@ -146,7 +140,7 @@ export function AdministracionProductos() {
             <option>Poleras</option>
             <option>Calzas</option>
             <option>Faldas</option>
-            <option>Choker</option>
+            <option>Chokers</option>
             <option>Arnés</option>
           </select>
         </div>
@@ -165,9 +159,7 @@ export function AdministracionProductos() {
 
       {mensaje && (
         <div
-          className={`alert ${mensaje.tipo === "error" ? "alert-danger" : "alert-success"
-            } mt-2`}
-        >
+          className={`alert ${mensaje.tipo === "error" ? "alert-danger" : "alert-success"} mt-2`}>
           {mensaje.texto}
         </div>
       )}
@@ -206,13 +198,7 @@ export function AdministracionProductos() {
                       <img
                         src={p.imagenUrl}
                         alt={p.nombre}
-                        style={{
-                          width: 58,
-                          height: 58,
-                          objectFit: "cover",
-                          borderRadius: 8,
-                        }}
-                      />
+                        style={{ width: 58, height: 58, objectFit: "cover", borderRadius: 8,}}/>
                     ) : (
                       "-"
                     )}
@@ -225,14 +211,12 @@ export function AdministracionProductos() {
                       <button
                         className="btn btn-outline-secondary"
                         onClick={() => abrirModalEditar(p)}
-                      >
-                        Editar
+                      >Editar
                       </button>
                       <button
                         className="btn btn-outline-danger"
                         onClick={() => eliminarProducto(p.id)}
-                      >
-                        Eliminar
+                      >Eliminar
                       </button>
                     </div>
                   </td>
@@ -243,7 +227,6 @@ export function AdministracionProductos() {
         </table>
       </div>
 
-      {/* === MODAL === */}
       <ModalProducto
         modo={modo}
         producto={productoSeleccionado}

@@ -11,7 +11,6 @@ export function Usuario() {
   const [modo, setModo] = useState("crear");
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
 
-  // ======== Cargar usuarios ==========
   async function cargarUsuarios() {
     setCargando(true);
     setMensaje(null);
@@ -31,7 +30,6 @@ export function Usuario() {
     }
   }
 
-  // ======== Cargar roles ==========
   async function cargarRoles() {
     try {
       const res = await fetch("http://localhost:8082/api/roles");
@@ -39,7 +37,7 @@ export function Usuario() {
       const data = await res.json();
       setRoles(data);
     } catch (error) {
-      console.error("❌ Error al cargar roles:", error);
+      console.error("Error al cargar roles:", error);
     }
   }
 
@@ -48,13 +46,11 @@ export function Usuario() {
     cargarRoles();
   }, []);
 
-  // ======== Filtrado ==========
   const filtrados = useMemo(() => {
     const texto = filtroTexto.toLowerCase().trim();
     const rolSeleccionado = filtroRol.toLowerCase().trim();
 
     return usuarios.filter((u) => {
-      // Detecta nombre de rol desde objeto o desde rol_id
       const rolNombre =
         (typeof u.rol === "object"
           ? u.rol?.nombre
@@ -72,7 +68,7 @@ export function Usuario() {
     });
   }, [usuarios, filtroTexto, filtroRol, roles]);
 
-  // ======== Modal (crear / editar) ==========
+
   function abrirModalCrear() {
     setModo("crear");
     setUsuarioSeleccionado(null);
@@ -87,7 +83,6 @@ export function Usuario() {
     modal.show();
   }
 
-  // ======== Eliminar ==========
   async function eliminarUsuario(id) {
     if (!confirm("¿Seguro que deseas eliminar este usuario?")) return;
     try {
@@ -109,7 +104,6 @@ export function Usuario() {
     }
   }
 
-  // ======== Callback al guardar ==========
   function onGuardar() {
     cargarUsuarios();
     const modal = bootstrap.Modal.getInstance(
@@ -118,7 +112,6 @@ export function Usuario() {
     modal.hide();
   }
 
-  // ======== Render ==========
   return (
     <div className="container my-4">
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -128,22 +121,12 @@ export function Usuario() {
         </button>
       </div>
 
-      {/* ==== Filtros ==== */}
       <div className="row g-2 mb-3 mt-2">
         <div className="col-md-3">
-          <input
-            value={filtroTexto}
-            onChange={(e) => setFiltroTexto(e.target.value)}
-            className="form-control"
-            placeholder="Buscar por nombre o email"
-          />
+          <input value={filtroTexto} onChange={(e) => setFiltroTexto(e.target.value)} className="form-control" placeholder="Buscar por nombre o email"/>
         </div>
         <div className="col-md-3">
-          <select
-            value={filtroRol}
-            onChange={(e) => setFiltroRol(e.target.value)}
-            className="form-select"
-          >
+          <select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)} className="form-select">
             <option value="">Todos los roles</option>
             {roles.map((r) => (
               <option key={r.id} value={r.nombre}>
@@ -153,8 +136,7 @@ export function Usuario() {
           </select>
         </div>
         <div className="col-md-3">
-          <button
-            className="btn btn-outline-secondary w-100"
+          <button className="btn btn-outline-secondary w-100"
             onClick={() => {
               setFiltroTexto("");
               setFiltroRol("");
@@ -165,7 +147,6 @@ export function Usuario() {
         </div>
       </div>
 
-      {/* ==== Mensajes ==== */}
       {mensaje && (
         <div
           className={`alert ${
@@ -176,7 +157,6 @@ export function Usuario() {
         </div>
       )}
 
-      {/* ==== Tabla ==== */}
       <div className="table-responsive">
         <table className="table table-striped align-middle">
           <thead>
@@ -244,8 +224,7 @@ export function Usuario() {
           </tbody>
         </table>
       </div>
-
-      {/* === MODAL === */}
+      
       <ModalUsuario
         modo={modo}
         usuario={usuarioSeleccionado}

@@ -13,7 +13,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-
 img{
     display: block;
     margin:auto;
@@ -168,11 +167,11 @@ p{
   text-align: center;
   padding: 1rem;
 }
-.modal-body img {
-    margin-top: 20px;
-    width: 500px;
-    max-height: 720px; 
-    object-fit: cover; 
+.card img {
+  width: 100%;
+  height: 280px;        
+  object-fit: cover;   
+  border-bottom: 1px solid #ddd;
 }
 .admin-header { row-gap: .5rem; }
 
