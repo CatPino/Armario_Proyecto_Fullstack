@@ -165,9 +165,8 @@ export function AdministracionProductos() {
 
       {mensaje && (
         <div
-          className={`alert ${
-            mensaje.tipo === "error" ? "alert-danger" : "alert-success"
-          } mt-2`}
+          className={`alert ${mensaje.tipo === "error" ? "alert-danger" : "alert-success"
+            } mt-2`}
         >
           {mensaje.texto}
         </div>
@@ -235,17 +234,6 @@ export function AdministracionProductos() {
                       >
                         Eliminar
                       </button>
-                      <label className="btn btn-outline-primary">
-                        Subir imagen
-                        <input
-                          type="file"
-                          accept="image/*"
-                          hidden
-                          onChange={(e) =>
-                            subirImagenProducto(p.id, e.target.files[0])
-                          }
-                        />
-                      </label>
                     </div>
                   </td>
                 </tr>
