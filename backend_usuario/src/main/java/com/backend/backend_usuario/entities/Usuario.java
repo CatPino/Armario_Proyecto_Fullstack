@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -18,7 +19,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "usuarios",indexes = { @Index(name = "idx_usuarios_rol_estado", columnList = "rol_id, estado"), @Index(name = "idx_usuarios_rol_estado_fecha", columnList = "rol_id, estado, fecha_creacion")
+@Table(
+    name = "usuarios",
+    indexes = {
+        @Index(name = "idx_usuarios_rol_estado", columnList = "rol_id, estado"),
+        @Index(name = "idx_usuarios_rol_estado_fecha", columnList = "rol_id, estado, fecha_creacion")
     }
 )
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -41,7 +46,6 @@ public class Usuario {
     @Column(nullable = false, length = 180, unique = true)
     private String email;
 
-    // Guardar ENCRIPTADA (BCrypt) desde el servicio antes de persistir.
     @NotBlank
     @Size(min = 8, max = 100)
     @Column(nullable = false, length = 100)
@@ -57,7 +61,6 @@ public class Usuario {
     @Size(max = 100)
     private String comuna;
 
-    // Estado interno como boolean (MySQL: TINYINT(1)), por defecto true (activo)
     @Column(name = "estado", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
     private boolean estado = true;
 
@@ -65,11 +68,16 @@ public class Usuario {
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    // Muchos usuarios → un rol (cliente | super_admin | visitante)
+    // Asociación al rol (no la exportamos completa en el JSON)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "rol_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference   // o @JsonIgnore si prefieres
     private Rol rol;
+
+    // 👇 Campo “sombra” para exponer el FK en el JSON
+    @JsonProperty("rol_id")
+    @Column(name = "rol_id", insertable = false, updatable = false)
+    private Long rolId;
 
     @PrePersist
     public void prePersist() {
