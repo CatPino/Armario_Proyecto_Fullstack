@@ -31,7 +31,7 @@ public class Producto {
     @NotNull
     private Long stock;
 
-    @NotBlank
+    @Column(nullable = true)
     private String imagenUrl;
 
     @NotNull

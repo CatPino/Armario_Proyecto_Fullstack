@@ -10,15 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.inventario.backend_inventario.entities.Producto;
 import com.inventario.backend_inventario.repositories.ProductoRepositories;
 
-
 @Service
-public class ProductoServiceImpl implements ProductoService{
+public class ProductoServiceImpl implements ProductoService {
 
     @Autowired
     private ProductoRepositories productoRepositories;
 
     @Override
-    public Producto crear(Producto producto){
+    public Producto crear(Producto producto) {
         return productoRepositories.save(producto);
     }
 
@@ -38,24 +37,28 @@ public class ProductoServiceImpl implements ProductoService{
         if (!productoRepositories.existsById(id)) {
             throw new RuntimeException("Producto no encontrado");
         }
-       productoRepositories.deleteById(id);
+        productoRepositories.deleteById(id);
     }
 
     @Override
+
     public Producto actualizar(Long id, Producto productoActualizado) {
         Producto existente = obtenerId(id);
+        existente.setNombre(productoActualizado.getNombre());
         existente.setDescripcion(productoActualizado.getDescripcion());
         existente.setPrecio(productoActualizado.getPrecio());
+        existente.setStock(productoActualizado.getStock());
+        existente.setCategoria(productoActualizado.getCategoria()); 
+        existente.setActivo(productoActualizado.getActivo()); 
         return productoRepositories.save(existente);
     }
 
     @Override
-    public Producto desactivar(Long id){
+    public Producto desactivar(Long id) {
         Producto producto = obtenerId(id);
         producto.setActivo(false);
         return productoRepositories.save(producto);
     }
-
 
     @Override
     public boolean validarStock(Long idProducto, int cantidadSolicitada) {
@@ -63,38 +66,39 @@ public class ProductoServiceImpl implements ProductoService{
         return producto != null && producto.getStock() >= cantidadSolicitada;
     }
 
+   
     @Override
     public String subirImagen(Long idProducto, MultipartFile archivo) {
         try {
-            // 📁 Crear carpeta si no existe
-            String directorio = "img/";
-            File carpeta = new File(directorio);
-            if (!carpeta.exists()) carpeta.mkdirs();
+            // 1) Carpeta "img" relativa al proyecto
+            File carpeta = new File("img");
+            if (!carpeta.exists())
+                carpeta.mkdirs();
 
-            // 🧾 Crear nombre único para evitar reemplazos accidentales
-            String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getOriginalFilename();
-            String rutaCompleta = directorio + nombreArchivo;
+            // 2) Nombre único
+            String original = archivo.getOriginalFilename();
+            String ext = (original != null && original.contains(".")) ? original.substring(original.lastIndexOf("."))
+                    : "";
+            String nombreArchivo = "prod_" + idProducto + "_" + System.currentTimeMillis() + ext;
 
-            // 💾 Guardar el archivo físicamente
-            archivo.transferTo(new File(rutaCompleta));
+            // 3) Guardar físicamente
+            File destino = new File(carpeta, nombreArchivo);
+            archivo.transferTo(destino);
 
-            // 🌐 Construir URL pública (gracias al WebMvcConfigurer)
-            String urlPublica = "http://localhost:8081/" + rutaCompleta;
+            // 4) URL pública (coincide con tu WebConfig /img/**)
+            String urlPublica = "http://localhost:8081/img/" + nombreArchivo;
 
-            // 🧠 Actualizar el producto con la nueva imagen
+            // 5) Persistir en BD
             Producto producto = obtenerId(idProducto);
-            if (producto != null) {
-                producto.setImagenUrl(urlPublica);
-                productoRepositories.save(producto);
-            }
+            producto.setImagenUrl(urlPublica);
+            productoRepositories.save(producto);
 
             return urlPublica;
-
         } catch (IOException e) {
-            throw new RuntimeException("Error al subir imagen: " + e.getMessage());
+            throw new RuntimeException("Error al subir imagen: " + e.getMessage(), e);
         }
     }
-    
+
     @Override
     public List<Producto> buscarPorCategoria(String categoriaNombre) {
         return productoRepositories.findByCategoria_Nombre(categoriaNombre);
@@ -113,6 +117,6 @@ public class ProductoServiceImpl implements ProductoService{
     @Override
     public List<Producto> listarActivos() {
         return productoRepositories.findByActivoTrue();
-}
-    
+    }
+
 }

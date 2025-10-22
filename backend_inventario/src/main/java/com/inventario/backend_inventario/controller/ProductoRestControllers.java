@@ -1,6 +1,7 @@
 package com.inventario.backend_inventario.controller;
-import java.util.List;
 
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,6 @@ public class ProductoRestControllers {
         return ResponseEntity.ok(producto);
     }
 
- 
     @GetMapping
     public ResponseEntity<List<Producto>> listarProductos() {
         List<Producto> productos = productoServices.listarTodas();
@@ -55,9 +55,10 @@ public class ProductoRestControllers {
         productoServices.eliminar(id);
         return ResponseEntity.noContent().build();
     }
-   
+
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id,@Valid @RequestBody Producto productoActualizado) {
+    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id,
+            @Valid @RequestBody Producto productoActualizado) {
         Producto producto = productoServices.actualizar(id, productoActualizado);
         return ResponseEntity.ok(producto);
     }
@@ -67,63 +68,53 @@ public class ProductoRestControllers {
         return ResponseEntity.ok(productoServices.desactivar(id));
     }
 
-
     @GetMapping("/{id}/validar")
     public ResponseEntity<Integer> validarStock(@PathVariable("id") Long idProducto) {
         Producto producto = productoServices.obtenerId(idProducto);
 
         if (producto == null || producto.getStock() <= 0) {
-            return ResponseEntity.ok(0); 
+            return ResponseEntity.ok(0);
         }
 
         return ResponseEntity.ok(producto.getStock().intValue());
     }
 
     @PostMapping("/{id}/imagen")
-    public ResponseEntity<Producto> subirImagen( @PathVariable("id") Long idProducto, @RequestParam("archivo") MultipartFile archivo) {
-
+    public ResponseEntity<Map<String, String>> subirImagen(
+            @PathVariable("id") Long idProducto,
+            @RequestParam("archivo") MultipartFile archivo) {
         try {
             String url = productoServices.subirImagen(idProducto, archivo);
-
-            if (url == null) {
-                return ResponseEntity.badRequest().build(); 
-            }
-
-            Producto producto = productoServices.obtenerId(idProducto);
-            return ResponseEntity.ok(producto);
-
+            if (url == null)
+                return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok(Map.of("imagenUrl", url));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build(); 
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<Producto>> buscar(@RequestParam(required = false) String nombre, @RequestParam(required = false) String categoria) {
+    public ResponseEntity<List<Producto>> buscar(@RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String categoria) {
 
-    List<Producto> productos;
+        List<Producto> productos;
 
-    if (nombre != null && !nombre.trim().isEmpty()) {
-        productos = productoServices.buscarPorNombre(nombre);
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            productos = productoServices.buscarPorNombre(nombre);
 
-    } else if (categoria != null && !categoria.trim().isEmpty()) {
-        productos = productoServices.buscarPorCategoria(categoria);
+        } else if (categoria != null && !categoria.trim().isEmpty()) {
+            productos = productoServices.buscarPorCategoria(categoria);
 
-    } else {
-        productos = productoServices.listarTodas();
+        } else {
+            productos = productoServices.listarTodas();
+        }
+
+        return ResponseEntity.ok(productos);
     }
 
-    return ResponseEntity.ok(productos);
-}
     @GetMapping("/alertas-stock")
     public ResponseEntity<List<Producto>> obtenerProductosConStockBajo() {
         List<Producto> productos = productoServices.listarStockBajo();
         return ResponseEntity.ok(productos);
+    }
 }
-}
-    
-
-
-
-
-
-
