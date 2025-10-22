@@ -7,17 +7,15 @@ import java.nio.file.Paths;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    String rutaImgs = Paths
+        .get(System.getProperty("user.dir"), "img")
+        .toAbsolutePath()
+        .toString()
+        .replace("\\", "/");
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Ruta física a tu carpeta img
-        String rutaImgs = Paths.get("img")
-                       .toAbsolutePath()
-                       .toString()
-                       .replace("\\", "/");
-
-        // Expone la URL pública /img/** -> carpeta física
-        registry.addResourceHandler("/img/**")
-                .addResourceLocations("file:" + rutaImgs + "/");
-    }
+    registry.addResourceHandler("/img/**")
+            .addResourceLocations("file:" + rutaImgs + "/");
+  }
 }

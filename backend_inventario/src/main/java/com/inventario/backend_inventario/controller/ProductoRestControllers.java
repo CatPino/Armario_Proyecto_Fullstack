@@ -2,6 +2,7 @@ package com.inventario.backend_inventario.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -80,16 +81,27 @@ public class ProductoRestControllers {
     }
 
     @PostMapping("/{id}/imagen")
-    public ResponseEntity<Map<String, String>> subirImagen(
-            @PathVariable("id") Long idProducto,
+    public ResponseEntity<?> subirImagen(
+            @PathVariable Long id,
             @RequestParam("archivo") MultipartFile archivo) {
+
         try {
-            String url = productoServices.subirImagen(idProducto, archivo);
-            if (url == null)
-                return ResponseEntity.badRequest().build();
+            if (archivo == null || archivo.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "error", "Archivo vacío o no enviado (campo debe llamarse 'archivo')"));
+            }
+
+            String url = productoServices.subirImagen(id, archivo);
             return ResponseEntity.ok(Map.of("imagenUrl", url));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+
+        } catch (NoSuchElementException e) { // si cambiaras obtenerId para que lance esta
+            return ResponseEntity.status(404).body(Map.of("error", "Producto no encontrado: " + id));
+        } catch (RuntimeException e) { // errores controlados de service
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) { // errores inesperados
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of("error", "Error inesperado"));
         }
     }
 

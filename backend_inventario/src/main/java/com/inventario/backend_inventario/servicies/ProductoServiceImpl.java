@@ -2,6 +2,9 @@ package com.inventario.backend_inventario.servicies;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +51,8 @@ public class ProductoServiceImpl implements ProductoService {
         existente.setDescripcion(productoActualizado.getDescripcion());
         existente.setPrecio(productoActualizado.getPrecio());
         existente.setStock(productoActualizado.getStock());
-        existente.setCategoria(productoActualizado.getCategoria()); 
-        existente.setActivo(productoActualizado.getActivo()); 
+        existente.setCategoria(productoActualizado.getCategoria());
+        existente.setActivo(productoActualizado.getActivo());
         return productoRepositories.save(existente);
     }
 
@@ -66,35 +69,40 @@ public class ProductoServiceImpl implements ProductoService {
         return producto != null && producto.getStock() >= cantidadSolicitada;
     }
 
-   
     @Override
     public String subirImagen(Long idProducto, MultipartFile archivo) {
         try {
-            // 1) Carpeta "img" relativa al proyecto
-            File carpeta = new File("img");
-            if (!carpeta.exists())
-                carpeta.mkdirs();
+            if (archivo == null || archivo.isEmpty()) {
+                throw new RuntimeException("Archivo vacío");
+            }
+
+            // 1) Carpeta absoluta: <raiz-del-proyecto>/img
+            Path base = Paths.get(System.getProperty("user.dir"), "img");
+            Files.createDirectories(base); // asegura que existe
 
             // 2) Nombre único
             String original = archivo.getOriginalFilename();
-            String ext = (original != null && original.contains(".")) ? original.substring(original.lastIndexOf("."))
+            String ext = (original != null && original.contains("."))
+                    ? original.substring(original.lastIndexOf("."))
                     : "";
-            String nombreArchivo = "prod_" + idProducto + "_" + System.currentTimeMillis() + ext;
+            String nombre = "prod_" + idProducto + "_" + System.currentTimeMillis() + ext;
 
-            // 3) Guardar físicamente
-            File destino = new File(carpeta, nombreArchivo);
-            archivo.transferTo(destino);
+            // 3) Destino absoluto y guardado físico
+            Path destino = base.resolve(nombre);
+            archivo.transferTo(destino.toFile());
 
-            // 4) URL pública (coincide con tu WebConfig /img/**)
-            String urlPublica = "http://localhost:8081/img/" + nombreArchivo;
+            // 4) URL pública (coincide con tu WebConfig)
+            String url = "http://localhost:8081/img/" + nombre;
 
             // 5) Persistir en BD
-            Producto producto = obtenerId(idProducto);
-            producto.setImagenUrl(urlPublica);
-            productoRepositories.save(producto);
+            Producto p = obtenerId(idProducto);
+            p.setImagenUrl(url);
+            productoRepositories.save(p);
 
-            return urlPublica;
-        } catch (IOException e) {
+            return url;
+
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al subir imagen: " + e.getMessage(), e);
         }
     }
