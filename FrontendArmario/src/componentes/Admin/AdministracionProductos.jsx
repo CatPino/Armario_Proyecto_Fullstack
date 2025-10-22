@@ -125,14 +125,16 @@ export function AdministracionProductos() {
 
       <div className="row g-2 mb-3 mt-2">
         <div className="col-md-3">
-          <input value={filtroTexto}
+          <input
+            value={filtroTexto}
             onChange={(e) => setFiltroTexto(e.target.value)}
             className="form-control"
             placeholder="Buscar por nombre/descripción"
           />
         </div>
         <div className="col-md-3">
-          <select value={filtroCategoria}
+          <select
+            value={filtroCategoria}
             onChange={(e) => setFiltroCategoria(e.target.value)}
             className="form-select"
           >
@@ -159,7 +161,10 @@ export function AdministracionProductos() {
 
       {mensaje && (
         <div
-          className={`alert ${mensaje.tipo === "error" ? "alert-danger" : "alert-success"} mt-2`}>
+          className={`alert ${
+            mensaje.tipo === "error" ? "alert-danger" : "alert-success"
+          } mt-2`}
+        >
           {mensaje.texto}
         </div>
       )}
@@ -173,19 +178,20 @@ export function AdministracionProductos() {
               <th>Nombre</th>
               <th>Categoría</th>
               <th>Precio</th>
+              <th>Stock</th>
               <th className="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {cargando ? (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan="7" className="text-center">
                   Cargando...
                 </td>
               </tr>
             ) : filtrados.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan="7" className="text-center">
                   Sin resultados
                 </td>
               </tr>
@@ -198,7 +204,13 @@ export function AdministracionProductos() {
                       <img
                         src={p.imagenUrl}
                         alt={p.nombre}
-                        style={{ width: 58, height: 58, objectFit: "cover", borderRadius: 8,}}/>
+                        style={{
+                          width: 58,
+                          height: 58,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                        }}
+                      />
                     ) : (
                       "-"
                     )}
@@ -206,17 +218,39 @@ export function AdministracionProductos() {
                   <td>{p.nombre}</td>
                   <td>{p.categoria?.nombre || "-"}</td>
                   <td>${Number(p.precio || 0).toLocaleString()} CLP</td>
+
+                  {/* 🔴🟢 Stock con colores según cantidad */}
+                  <td>
+                    {typeof p.stock === "number" ? (
+                      p.stock <= 0 ? (
+                        <span className="text-danger fw-bold">Agotado</span>
+                      ) : p.stock < 5 ? (
+                        <span className="text-danger fw-bold">
+                          {p.stock} unidades
+                        </span>
+                      ) : (
+                        <span className="text-success fw-bold">
+                          {p.stock} unidades
+                        </span>
+                      )
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
                   <td className="text-center">
                     <div className="btn-group btn-group-sm">
                       <button
                         className="btn btn-outline-secondary"
                         onClick={() => abrirModalEditar(p)}
-                      >Editar
+                      >
+                        Editar
                       </button>
                       <button
                         className="btn btn-outline-danger"
                         onClick={() => eliminarProducto(p.id)}
-                      >Eliminar
+                      >
+                        Eliminar
                       </button>
                     </div>
                   </td>
