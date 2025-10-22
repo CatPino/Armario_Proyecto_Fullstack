@@ -17,7 +17,6 @@ export function ModalProductos({ categoriaNombre }) {
         const dataCat = await resCat.json();
         setCategorias(dataCat);
 
-        // ✅ Si se pasa categoriaNombre, filtramos
         if (categoriaNombre) {
           const categoria = dataCat.find(
             (c) => c.nombre.toLowerCase() === categoriaNombre.toLowerCase()
@@ -31,10 +30,10 @@ export function ModalProductos({ categoriaNombre }) {
             );
             setProductos(filtrados);
           } else {
-            setProductos([]); // categoría no existe
+            setProductos([]); 
           }
         } else {
-          setProductos(dataProd); // muestra todos
+          setProductos(dataProd); 
         }
       } catch (error) {
         console.error("❌ Error al cargar productos o categorías:", error);
@@ -49,7 +48,6 @@ export function ModalProductos({ categoriaNombre }) {
   if (cargando)
     return <div className="text-center mt-5">🕐 Cargando productos...</div>;
 
-  // ✅ Función para obtener nombre de categoría por ID
   const obtenerNombreCategoria = (categoriaId) => {
     const categoria = categorias.find((c) => c.id === categoriaId);
     return categoria ? categoria.nombre : "Sin categoría";
@@ -63,13 +61,7 @@ export function ModalProductos({ categoriaNombre }) {
       ) : (
         productos.map((p) => (
           <div key={p.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
-            {/* === CARD === */}
-            <div
-              className="card"
-              role="button"
-              data-bs-toggle="modal"
-              data-bs-target={`#modal${p.id}`}
-            >
+            <div className="card" role="button" data-bs-toggle="modal" data-bs-target={`#modal${p.id}`}>
               {p.imagenUrl ? (
                 <img
                   src={p.imagenUrl}
@@ -103,14 +95,7 @@ export function ModalProductos({ categoriaNombre }) {
               </div>
             </div>
 
-            {/* === MODAL === */}
-            <div
-              className="modal fade"
-              id={`modal${p.id}`}
-              tabIndex="-1"
-              aria-labelledby={`tituloModal${p.id}`}
-              aria-hidden="true"
-            >
+            <div className="modal fade" id={`modal${p.id}`} tabIndex="-1" aria-labelledby={`tituloModal${p.id}`} aria-hidden="true">
               <div className="modal-dialog modal-lg">
                 <div className="modal-content">
                   <div className="modal-header">

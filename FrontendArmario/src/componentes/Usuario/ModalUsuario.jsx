@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
   const esEditar = modo === "editar";
 
-  // === regiones → comunas (mismo contenido de tu RegistroForm) ===
   const comunasPorRegion = useMemo(() => ({
     "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
     "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"],
@@ -23,31 +22,103 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
     "Magallanes y la Antártica": ["Punta Arenas","Laguna Blanca","Río Verde","San Gregorio","Natales","Torres del Paine","Porvenir","Primavera","Timaukel","Cabo de Hornos","Antártica"]
   }), []);
 
-  const [form, setForm] = useState({
+    const [form, setForm] = useState({
     nombre: "",
     email: "",
     password: "",
-    rol: "",        // guarda ID del rol
+    rol: "",
     estado: true,
     region: "",
     comuna: "",
   });
+
+  const [errores, setErrores] = useState({});
+  const [ok, setOk] = useState({});
   const [mensaje, setMensaje] = useState(null);
 
-  // Comunas disponibles según la región seleccionada
+  const correoValido = (email) =>
+    /^[^\s@]+@(duoc\.cl|profesor\.duoc\.cl|gmail\.com)$/i.test(
+      (email || "").trim()
+    );
+
+  const passwordValida = (pass) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,100}$/.test(
+      pass || ""
+    );
+
+  const reglas = {
+    nombre: {
+      test: (v) => /^[A-Za-zÁÉÍÓÚÑáéíóúñ\s]{4,100}$/.test((v || "").trim()),
+      ok: "Nombre válido.",
+      bad: "Debe tener al menos 4 letras sin números.",
+    },
+    email: {
+      test: (v) => v.length <= 100 && correoValido(v),
+      ok: "Correo válido.",
+      bad: "Solo se aceptan @duoc.cl, @profesor.duoc.cl o @gmail.com.",
+    },
+    password: {
+      test: (v) => esEditar || passwordValida(v),
+      ok: "Contraseña segura.",
+      bad: "Debe tener mayúscula, minúscula, número y símbolo.",
+    },
+    region: {
+      test: (v) => v !== "",
+      ok: "Región seleccionada.",
+      bad: "Selecciona una región.",
+    },
+    comuna: {
+      test: (v) => v !== "",
+      ok: "Comuna seleccionada.",
+      bad: "Selecciona una comuna.",
+    },
+    rol: {
+      test: (v) => v !== "",
+      ok: "Rol válido.",
+      bad: "Selecciona un rol.",
+    },
+  };
+
+  const validarCampo = (name, valor) => {
+    const regla = reglas[name];
+    if (!regla) return true;
+
+    if (regla.test(valor)) {
+      setErrores((prev) => ({ ...prev, [name]: "" }));
+      setOk((prev) => ({ ...prev, [name]: regla.ok }));
+      return true;
+    } else {
+      setOk((prev) => ({ ...prev, [name]: "" }));
+      setErrores((prev) => ({ ...prev, [name]: regla.bad }));
+      return false;
+    }
+  };
+
+  const validarTodo = () => {
+    let valido = true;
+    Object.keys(reglas).forEach((campo) => {
+      if (!validarCampo(campo, form[campo])) valido = false;
+    });
+    return valido;
+  };
+
+  function handleChange(e) {
+    const { name, value, type, checked } = e.target;
+    const val = type === "checkbox" ? checked : value;
+    setForm((f) => ({ ...f, [name]: val }));
+    validarCampo(name, val);
+  }
+
   const comunasDisponibles = useMemo(
     () => (form.region ? comunasPorRegion[form.region] ?? [] : []),
     [form.region, comunasPorRegion]
   );
 
-  // Si cambia la región y la comuna actual no pertenece, la reseteamos
   useEffect(() => {
-    if (form.region && form.comuna && !comunasDisponibles.includes(form.comuna)) {
+    if (form.region && form.comuna && !comunasDisponibles.includes(form.comuna))
       setForm((f) => ({ ...f, comuna: "" }));
-    }
   }, [form.region, comunasDisponibles]);
 
-  // Carga inicial (editar / crear)
   useEffect(() => {
     if (usuario) {
       setForm({
@@ -71,16 +142,19 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
         comuna: "",
       });
     }
+    setErrores({});
+    setOk({});
+    setMensaje(null);
   }, [usuario, modo]);
-
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setMensaje(null);
+
+    if (!validarTodo()) {
+      setMensaje({ tipo: "error", texto: "Revisa los campos marcados en rojo." });
+      return;
+    }
 
     try {
       const url = esEditar
@@ -88,13 +162,12 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
         : "http://localhost:8082/api/usuarios";
       const metodo = esEditar ? "PUT" : "POST";
 
-      // Lo que tu backend (DTO) valida: nombre, email, password (crear), rol, estado, region, comuna
       const base = {
-        nombre: form.nombre?.trim(),
-        email: form.email?.trim(),
+        nombre: form.nombre.trim(),
+        email: form.email.trim(),
         estado: !!form.estado,
-        region: form.region,     // requerido por tu DTO
-        comuna: form.comuna,     // requerido por tu DTO
+        region: form.region,
+        comuna: form.comuna,
         rol: form.rol ? { id: Number(form.rol) } : null,
       };
       const payload = esEditar ? base : { ...base, password: form.password };
@@ -105,18 +178,17 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        console.error("Respuesta backend:", res.status, txt);
-        throw new Error("Error al guardar el usuario");
-      }
+      if (!res.ok) throw new Error("Error al guardar el usuario");
 
       const data = await res.json();
-      setMensaje({ tipo: "exito", texto: "✅ Usuario guardado correctamente." });
+      setMensaje({
+        tipo: "exito",
+        texto: "Usuario guardado correctamente.",
+      });
       onGuardar?.(data);
     } catch (error) {
       console.error("Error al guardar:", error);
-      setMensaje({ tipo: "error", texto: "❌ No se pudo guardar el usuario." });
+      setMensaje({ tipo: "error", texto: "No se pudo guardar el usuario." });
     }
   }
 
@@ -126,13 +198,19 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
         <div className="modal-content">
           <form onSubmit={handleSubmit}>
             <div className="modal-header">
-              <h5 className="modal-title">{esEditar ? "Editar Usuario" : "Agregar Usuario"}</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" />
+              <h5 className="modal-title">
+                {esEditar ? "Editar Usuario" : "Agregar Usuario"}
+              </h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"/>
             </div>
 
             <div className="modal-body">
               {mensaje && (
-                <div className={`alert ${mensaje.tipo === "error" ? "alert-danger" : "alert-success"}`}>
+                <div
+                  className={`alert ${
+                    mensaje.tipo === "error" ? "alert-danger" : "alert-success"
+                  }`}
+                >
                   {mensaje.texto}
                 </div>
               )}
@@ -140,50 +218,73 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="form-label">Nombre</label>
-                  <input
-                    name="nombre"
-                    value={form.nombre}
-                    onChange={handleChange}
-                    className="form-control"
-                    required
+                  <input name="nombre" value={form.nombre}  onChange={handleChange}
+                    className={`form-control ${
+                      errores.nombre
+                        ? "is-invalid"
+                        : ok.nombre
+                        ? "is-valid"
+                        : ""
+                    }`}
                   />
+                  {errores.nombre && (
+                    <div className="invalid-feedback">{errores.nombre}</div>
+                  )}
+                  {ok.nombre && (
+                    <div className="valid-feedback">{ok.nombre}</div>
+                  )}
                 </div>
 
                 <div className="col-md-6">
                   <label className="form-label">Correo electrónico</label>
-                  <input
-                    type="email"
-                    name="email"
+                  <input type="email" name="email"
                     value={form.email}
                     onChange={handleChange}
-                    className="form-control"
-                    required
+                    className={`form-control ${
+                      errores.email
+                        ? "is-invalid"
+                        : ok.email
+                        ? "is-valid"
+                        : ""
+                    }`}
                   />
+                  {errores.email && (
+                    <div className="invalid-feedback">{errores.email}</div>
+                  )}
+                  {ok.email && <div className="valid-feedback">{ok.email}</div>}
                 </div>
 
+                {/* Password */}
                 {!esEditar && (
                   <div className="col-md-6">
                     <label className="form-label">Contraseña</label>
-                    <input
-                      type="password"
-                      name="password"
+                    <input  type="password" name="password"
                       value={form.password}
                       onChange={handleChange}
-                      className="form-control"
-                      required
-                      minLength={8}
+                      className={`form-control ${
+                        errores.password
+                          ? "is-invalid"
+                          : ok.password
+                          ? "is-valid"
+                          : ""
+                      }`}
                     />
+                    {errores.password && (
+                      <div className="invalid-feedback">{errores.password}</div>
+                    )}
+                    {ok.password && (
+                      <div className="valid-feedback">{ok.password}</div>
+                    )}
                   </div>
                 )}
 
                 <div className="col-md-6">
                   <label className="form-label">Rol</label>
-                  <select
-                    name="rol"
-                    value={form.rol}
+                  <select name="rol" value={form.rol}
                     onChange={handleChange}
-                    className="form-select"
-                    required
+                    className={`form-select ${
+                      errores.rol ? "is-invalid" : ok.rol ? "is-valid" : ""
+                    }`}
                   >
                     <option value="">Seleccione rol...</option>
                     {roles.map((r) => (
@@ -192,54 +293,80 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
                       </option>
                     ))}
                   </select>
+                  {errores.rol && (
+                    <div className="invalid-feedback">{errores.rol}</div>
+                  )}
+                  {ok.rol && <div className="valid-feedback">{ok.rol}</div>}
                 </div>
 
                 {/* Región */}
                 <div className="col-md-6">
                   <label className="form-label">Región</label>
-                  <select
-                    name="region"
-                    value={form.region}
-                    onChange={handleChange}
-                    className="form-select"
-                    required
+                  <select name="region" value={form.region} onChange={handleChange}
+                    className={`form-select ${
+                      errores.region
+                        ? "is-invalid"
+                        : ok.region
+                        ? "is-valid"
+                        : ""
+                    }`}
                   >
                     <option value="">Selecciona una región</option>
-                    {Object.keys(comunasPorRegion).map((reg) => (
-                      <option key={reg} value={reg}>{reg}</option>
+                    {Object.keys(comunasPorRegion).map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
                     ))}
                   </select>
+                  {errores.region && (
+                    <div className="invalid-feedback">{errores.region}</div>
+                  )}
+                  {ok.region && (
+                    <div className="valid-feedback">{ok.region}</div>
+                  )}
                 </div>
 
-                {/* Comuna */}
                 <div className="col-md-6">
                   <label className="form-label">Comuna</label>
-                  <select
-                    name="comuna"
-                    value={form.comuna}
+                  <select name="comuna" value={form.comuna}
                     onChange={handleChange}
-                    className="form-select"
-                    required
                     disabled={!form.region}
+                    className={`form-select ${
+                      errores.comuna
+                        ? "is-invalid"
+                        : ok.comuna
+                        ? "is-valid"
+                        : ""
+                    }`}
                   >
                     <option value="">Selecciona una comuna</option>
                     {comunasDisponibles.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
                     ))}
                   </select>
+                  {errores.comuna && (
+                    <div className="invalid-feedback">{errores.comuna}</div>
+                  )}
+                  {ok.comuna && (
+                    <div className="valid-feedback">{ok.comuna}</div>
+                  )}
                 </div>
 
                 <div className="col-12">
                   <div className="form-check mt-2">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      name="estado"
+                    <input className="form-check-input" type="checkbox" name="estado"
                       checked={!!form.estado}
                       onChange={handleChange}
                       id="estado"
                     />
-                    <label className="form-check-label" htmlFor="estado">Activo</label>
+                    <label
+                      className="form-check-label"
+                      htmlFor="estado"
+                    >
+                      Activo
+                    </label>
                   </div>
                 </div>
               </div>
@@ -258,4 +385,4 @@ export function ModalUsuario({ modo, usuario, onGuardar, roles }) {
       </div>
     </div>
   );
-} 
+}
