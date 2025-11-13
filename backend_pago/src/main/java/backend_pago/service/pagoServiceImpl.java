@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import backend_pago.repositories.pagoRepository;
@@ -14,6 +15,7 @@ import backend_pago.entities.Pago;
 import backend_pago.repositories.boletaRepository;
 import backend_pago.repositories.detalleBoletaRepository;
 
+@Service
 public class pagoServiceImpl implements pagoService {
 
     @Autowired
