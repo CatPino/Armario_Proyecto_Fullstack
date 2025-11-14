@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
+import { useCarrito } from "../Carrito/ContextCarrito";
+import "../MostrarProductos/MostrarProductos.css";
 
 export function ModalProductos({ categoriaNombre }) {
+  const { agregarProducto } = useCarrito();
+
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [mensaje, setMensaje] = useState(""); // ✅ Mensaje flash
 
   useEffect(() => {
     async function cargar() {
@@ -15,6 +20,7 @@ export function ModalProductos({ categoriaNombre }) {
 
         const dataProd = await resProd.json();
         const dataCat = await resCat.json();
+
         setCategorias(dataCat);
 
         if (categoriaNombre) {
@@ -45,22 +51,46 @@ export function ModalProductos({ categoriaNombre }) {
     cargar();
   }, [categoriaNombre]);
 
-  if (cargando)
+  useEffect(() => {
+    if (productos.length > 0) {
+      console.log(productos[0]);
+      console.log(productos[0].id);
+    }
+  }, [productos]);
+
+  if (cargando) {
     return <div className="text-center mt-5">🕐 Cargando productos...</div>;
+  }
 
   const obtenerNombreCategoria = (categoriaId) => {
     const categoria = categorias.find((c) => c.id === categoriaId);
     return categoria ? categoria.nombre : "Sin categoría";
   };
 
+  // Función para mostrar mensaje flash
+  const mostrarMensaje = (texto) => {
+    setMensaje(texto);
+    setTimeout(() => setMensaje(""), 2000); // desaparece en 2 segundos
+  };
+
   return (
     <div className="container my-5">
+
+      {/* MENSAJE FLASH */}
+      {mensaje && (
+        <div className="toast-mensaje">
+          {mensaje}
+        </div>
+      )}
+
       <div className="row g-4">
         {productos.length === 0 ? (
           <p className="text-center">No hay productos disponibles.</p>
         ) : (
           productos.map((p) => (
             <div key={p.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+              
+              {/* CARD */}
               <div
                 className="card"
                 role="button"
@@ -68,11 +98,7 @@ export function ModalProductos({ categoriaNombre }) {
                 data-bs-target={`#modal${p.id}`}
               >
                 {p.imagenUrl ? (
-                  <img
-                    src={p.imagenUrl}
-                    alt={p.nombre}
-                    className="card-img-top"
-                  />
+                  <img src={p.imagenUrl} alt={p.nombre} className="card-img-top" />
                 ) : (
                   <div
                     className="d-flex align-items-center justify-content-center bg-light"
@@ -89,7 +115,6 @@ export function ModalProductos({ categoriaNombre }) {
                     ${Number(p.precio).toLocaleString()} CLP
                   </h5>
 
-                  {/*  Aviso de stock bajo */}
                   {p.stock < 5 && (
                     <p className="text-danger fw-bold mt-2">
                       ⚠️ Quedan solo {p.stock} unidades
@@ -101,8 +126,9 @@ export function ModalProductos({ categoriaNombre }) {
                   <button
                     className="button2 w-100"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      alert(`🛒 ${p.nombre} agregado al carrito!`);
+                      e.stopPropagation(); // Evita abrir modal
+                      agregarProducto(p); // ✅ Agrega al carrito
+                      mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
                     }}
                   >
                     Agregar al carrito
@@ -110,7 +136,7 @@ export function ModalProductos({ categoriaNombre }) {
                 </div>
               </div>
 
-              {/* Modal de detalle */}
+              {/* MODAL DE DETALLE */}
               <div
                 className="modal fade"
                 id={`modal${p.id}`}
@@ -137,16 +163,9 @@ export function ModalProductos({ categoriaNombre }) {
                         alt={p.nombre}
                         className="img-fluid rounded mb-3"
                       />
-                      <p>
-                        <strong>Descripción:</strong> {p.descripcion}
-                      </p>
-                      <p>
-                        <strong>Precio:</strong> $
-                        {Number(p.precio).toLocaleString()} CLP
-                      </p>
-                      <p>
-                        <strong>Stock:</strong> {p.stock}
-                      </p>
+                      <p><strong>Descripción:</strong> {p.descripcion}</p>
+                      <p><strong>Precio:</strong> ${Number(p.precio).toLocaleString()} CLP</p>
+                      <p><strong>Stock:</strong> {p.stock}</p>
                       {p.stock < 5 && (
                         <p className="text-danger fw-bold">
                           ⚠️ Quedan pocas unidades disponibles
@@ -154,9 +173,7 @@ export function ModalProductos({ categoriaNombre }) {
                       )}
                       <p>
                         <strong>Categoría:</strong>{" "}
-                        {p.categoria?.nombre ||
-                          obtenerNombreCategoria(p.categoria_id) ||
-                          "-"}
+                        {p.categoria?.nombre || obtenerNombreCategoria(p.categoria_id) || "-"}
                       </p>
                     </div>
 
@@ -166,9 +183,10 @@ export function ModalProductos({ categoriaNombre }) {
                       </button>
                       <button
                         className="button2"
-                        onClick={() =>
-                          alert(`🛒 ${p.nombre} agregado al carrito!`)
-                        }
+                        onClick={() => {
+                          agregarProducto(p);
+                          mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
+                        }}
                       >
                         Agregar al carrito
                       </button>
@@ -176,6 +194,7 @@ export function ModalProductos({ categoriaNombre }) {
                   </div>
                 </div>
               </div>
+
             </div>
           ))
         )}

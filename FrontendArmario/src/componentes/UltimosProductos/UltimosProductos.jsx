@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import { useCarrito } from "../Carrito/ContextCarrito";
+import "../UltimosProductos/UltimosProductos.css";
 
 export function UltimosProductos() {
+  const { agregarProducto } = useCarrito();
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [mensaje, setMensaje] = useState(""); // ✅ Mensaje flash
 
   useEffect(() => {
     async function cargar() {
@@ -17,10 +21,12 @@ export function UltimosProductos() {
         const dataCat = await resCat.json();
         setCategorias(dataCat);
 
-        const ultimos = dataProd.sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion)).slice(0, 4);
+        const ultimos = dataProd
+          .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion))
+          .slice(0, 4);
         setProductos(ultimos);
       } catch (error) {
-        console.error("Error al cargar productos o categorías:", error);
+        console.error("❌ Error al cargar productos o categorías:", error);
       } finally {
         setCargando(false);
       }
@@ -30,30 +36,51 @@ export function UltimosProductos() {
   }, []);
 
   if (cargando)
-    return <div className="text-center mt-5">Cargando productos...</div>;
+    return <div className="text-center mt-5">🕐 Cargando productos...</div>;
 
   const obtenerNombreCategoria = (categoriaId) => {
     const categoria = categorias.find((c) => c.id === categoriaId);
     return categoria ? categoria.nombre : "Sin categoría";
   };
 
+  // Función para mostrar mensaje flash
+  const mostrarMensaje = (texto) => {
+    setMensaje(texto);
+    setTimeout(() => setMensaje(""), 2000); // desaparece en 2 segundos
+  };
+
   return (
     <div className="container my-5">
       <h1>Conoce los nuevos productos</h1>
       <h2>Descubre nuestros productos y encuentra los artículos que están marcando tendencia.</h2>
+
+      {/* MENSAJE FLASH */}
+      {mensaje && (
+        <div className="toast-mensaje">
+          {mensaje}
+        </div>
+      )}
+
       <div className="row g-4">
         {productos.length === 0 ? (
           <p className="text-center">No hay productos disponibles.</p>
         ) : (
           productos.map((p) => (
             <div key={p.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
-
-              <div className="card" role="button" data-bs-toggle="modal" data-bs-target={`#modal${p.id}`}>
+              <div
+                className="card"
+                role="button"
+                data-bs-toggle="modal"
+                data-bs-target={`#modal${p.id}`}
+              >
                 {p.imagenUrl ? (
-                  <img src={p.imagenUrl} alt={p.nombre} className="card-img-top"/>
+                  <img src={p.imagenUrl} alt={p.nombre} className="card-img-top" />
                 ) : (
                   <div
-                    className="d-flex align-items-center justify-content-center bg-light" style={{ height: "200px" }}><span className="text-muted">Sin imagen</span>
+                    className="d-flex align-items-center justify-content-center bg-light"
+                    style={{ height: "200px" }}
+                  >
+                    <span className="text-muted">Sin imagen</span>
                   </div>
                 )}
 
@@ -66,17 +93,27 @@ export function UltimosProductos() {
                 </div>
 
                 <div className="card-footer bg-transparent border-0 text-center p-2">
-                  <button className="button2 w-100"
+                  <button
+                    className="button2 w-100"
                     onClick={(e) => {
                       e.stopPropagation();
-                      alert(` ${p.nombre} agregado al carrito!✅`);
+                      agregarProducto(p);
+                      mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
                     }}
-                  > Agregar al carrito
+                  >
+                    Agregar al carrito
                   </button>
                 </div>
               </div>
 
-              <div className="modal fade" id={`modal${p.id}`}  tabIndex="-1" aria-labelledby={`tituloModal${p.id}`} aria-hidden="true">
+              {/* MODAL */}
+              <div
+                className="modal fade"
+                id={`modal${p.id}`}
+                tabIndex="-1"
+                aria-labelledby={`tituloModal${p.id}`}
+                aria-hidden="true"
+              >
                 <div className="modal-dialog modal-lg">
                   <div className="modal-content">
                     <div className="modal-header">
@@ -85,14 +122,12 @@ export function UltimosProductos() {
                     </div>
 
                     <div className="modal-body text-center">
-                      <img src={p.imagenUrl}  alt={p.nombre} className="img-fluid rounded mb-3"/>
+                      <img src={p.imagenUrl} alt={p.nombre} className="img-fluid rounded mb-3" />
                       <p><strong>Descripción:</strong> {p.descripcion}</p>
-                      <p><strong>Precio:</strong>{" "}${Number(p.precio).toLocaleString()} CLP </p>
+                      <p><strong>Precio:</strong> ${Number(p.precio).toLocaleString()} CLP</p>
                       <p><strong>Stock:</strong> {p.stock}</p>
                       <p><strong>Categoría:</strong>{" "}
-                        {p.categoria?.nombre ||
-                          obtenerNombreCategoria(p.categoria_id) ||
-                          "-"}
+                        {p.categoria?.nombre || obtenerNombreCategoria(p.categoria_id) || "-"}
                       </p>
                     </div>
 
@@ -100,15 +135,18 @@ export function UltimosProductos() {
                       <button className="button1" data-bs-dismiss="modal">Cerrar</button>
                       <button
                         className="button2"
-                        onClick={() =>
-                          alert(` ${p.nombre} agregado al carrito! ✅`)
-                        }
-                      >Agregar al carrito
+                        onClick={() => {
+                          agregarProducto(p);
+                          mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
+                        }}
+                      >
+                        Agregar al carrito
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
           ))
         )}
