@@ -3,7 +3,6 @@ package com.backend.backend_usuario.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.backend.backend_usuario.dto.SolicitudActualizarUsuario;
 import com.backend.backend_usuario.dto.SolicitudCrearUsuario;
 import com.backend.backend_usuario.entities.Usuario;
+import com.backend.backend_usuario.security.JwtUtil;
 import com.backend.backend_usuario.services.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -22,8 +22,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    // Inyección por constructor (Lombok genera el constructor)
+    private final UsuarioService usuarioService;
+    private final JwtUtil jwtUtil;
 
     // ======================= CREAR =======================
     @PostMapping
@@ -45,6 +46,11 @@ public class UsuarioController {
         String email = req.get("email");
         String password = req.get("password");
 
+        if (email == null || password == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Email y password son requeridos"));
+        }
+
         Usuario usuario = usuarioService.buscarPorEmail(email);
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -56,18 +62,26 @@ public class UsuarioController {
                     .body(Map.of("error", "Contraseña incorrecta"));
         }
 
-        // ✅ Solo enviamos lo que el frontend necesita
+        if (!usuario.isEstado()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Usuario inactivo"));
+        }
+
+        // Generamos token JWT
+        String token = jwtUtil.generateToken(usuario);
+
+        // Enviamos datos del usuario + token
         Map<String, Object> respuesta = Map.of(
-            "id", usuario.getId(),
-            "nombre", usuario.getNombre(),
-            "email", usuario.getEmail(),
-            "rol", usuario.getRol().getNombre(),
-            "estado", usuario.isEstado()  // 👈 añadimos estado (activo/inactivo)
+                "token", token,
+                "id", usuario.getId(),
+                "nombre", usuario.getNombre(),
+                "email", usuario.getEmail(),
+                "rol", usuario.getRol().getNombre(),
+                "estado", usuario.isEstado()
         );
 
         return ResponseEntity.ok(respuesta);
     }
-
 
     // ======================= LISTAR TODOS =======================
     @GetMapping
