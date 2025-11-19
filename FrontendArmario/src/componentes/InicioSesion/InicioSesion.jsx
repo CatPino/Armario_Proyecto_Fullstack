@@ -24,28 +24,24 @@ export function InicioSesion() {
     if (id === "email") {
       if (!valor || !emailPermitido.test(valor.trim())) {
         input.classList.add("is-invalid");
-        if (err)
-          err.textContent =
-            "Ingresa un correo válido (@duoc.cl, @profesor.duoc.cl o @gmail.com)";
+        err.textContent =
+          "Ingresa un correo válido (@duoc.cl, @profesor.duoc.cl o @gmail.com)";
         return false;
-      } else {
-        input.classList.add("is-valid");
-        if (ok) ok.textContent = "Correo válido.";
-        return true;
       }
+      input.classList.add("is-valid");
+      ok.textContent = "Correo válido.";
+      return true;
     }
 
     if (id === "password") {
       if (!valor || valor.trim().length < 8) {
         input.classList.add("is-invalid");
-        if (err)
-          err.textContent = "La contraseña debe tener al menos 8 caracteres.";
+        err.textContent = "La contraseña debe tener al menos 8 caracteres.";
         return false;
-      } else {
-        input.classList.add("is-valid");
-        if (ok) ok.textContent = "Contraseña válida.";
-        return true;
       }
+      input.classList.add("is-valid");
+      ok.textContent = "Contraseña válida.";
+      return true;
     }
 
     return true;
@@ -91,24 +87,34 @@ export function InicioSesion() {
         });
         return;
       }
-      const nombreUsuario = data.nombre || "Usuario";
-      const rolUsuario =
-        typeof data.rol === "string" ? data.rol.toLowerCase() : "cliente";
 
+      // Usuario guardado completo
       const usuarioGuardado = {
         id: data.id,
-        nombre: nombreUsuario,
-        email: data.email || email,
-        rol: rolUsuario, 
+        nombre: data.nombre,
+        email: data.email,
+        telefono: data.telefono,
+        region: data.region,
+        comuna: data.comuna,
+        direccion: data.direccion,
+        departamento: data.departamento,
+        infoEnvio: data.infoEnvio,
+        rol: data.rol,
+        estado: data.estado,
+        token: data.token
       };
 
+      // Guardar correctamente
       localStorage.setItem("usuario", JSON.stringify(usuarioGuardado));
-      localStorage.setItem("rolUsuario", rolUsuario);
-      localStorage.setItem("nombreUsuario", nombreUsuario);
+      localStorage.setItem("token", data.token); // 🔥 NECESARIO PARA MiPerfil
+      localStorage.setItem("rolUsuario", data.rol?.toLowerCase() || "cliente");
+      localStorage.setItem("nombreUsuario", data.nombre);
       localStorage.setItem("mostrarModalUsuario", "true");
 
+      // Actualizar navbar
       window.dispatchEvent(new Event("storage"));
 
+      // Recordar correo (checkbox)
       const recordar = document.getElementById("Recordar");
       if (recordar && recordar.checked) {
         localStorage.setItem("emailRecordado", email);
@@ -137,16 +143,20 @@ export function InicioSesion() {
     <main className="container container-login">
       <h2 className="mb-3"><strong>Inicio de Sesión</strong></h2>
       <h3 className="text-muted mb-4">
-        Inicia sesión para acceder a tu cuenta y continuar tu experiencia en
-        Armario De Sombra.
+        Inicia sesión para acceder a tu cuenta y continuar tu experiencia en Armario De Sombra.
       </h3>
 
       <div className="card card-login">
-        <form onSubmit={handleLogin} id="loginForm" method="post"style={{ marginTop: "15px" }}>
+        <form onSubmit={handleLogin} id="loginForm" method="post" style={{ marginTop: "15px" }}>
 
           <div className="mb-3">
             <label htmlFor="email" className="form-label">Correo Electrónico</label>
-            <input type="email" className="form-control" id="email" name="email" placeholder="tucorreo@ejemplo.com"
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              name="email"
+              placeholder="tucorreo@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={(e) => validarCampo("email", e.target.value)}
@@ -157,7 +167,12 @@ export function InicioSesion() {
 
           <div className="mb-3">
             <label htmlFor="password" className="form-label">Contraseña</label>
-            <input type="password" className="form-control" id="password" name="password" placeholder="Contraseña"
+            <input
+              type="password"
+              className="form-control"
+              id="password"
+              name="password"
+              placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onBlur={(e) => validarCampo("password", e.target.value)}
@@ -188,7 +203,9 @@ export function InicioSesion() {
             </div>
           )}
 
-          <p className="text-center mt-3 mb-0">¿No tienes una cuenta? <Link to="/registro">Regístrate</Link></p>
+          <p className="text-center mt-3 mb-0">
+            ¿No tienes una cuenta? <Link to="/registro">Regístrate</Link>
+          </p>
         </form>
       </div>
     </main>
