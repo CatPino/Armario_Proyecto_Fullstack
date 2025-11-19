@@ -294,12 +294,18 @@ export function Navbar() {
                 Cerrar
               </button>
               <button
-                className="btn button1"
-                disabled={carrito.length === 0}
-                onClick={() => navigate("/pago")}
-              >
-                Ir al pago
-              </button>
+              className="btn button1"
+              disabled={carrito.length === 0}
+              onClick={() => {
+                const modal = document.getElementById("carritoModal");
+                const instancia = window.bootstrap.Modal.getInstance(modal);
+                if (instancia) instancia.hide(); // 👈 CIERRA EL MODAL AL INSTANTE
+
+                navigate("/pago"); // 👈 Luego navega
+              }}
+            >
+              Ir al pago
+            </button>
             </div>
           </div>
         </div>
