@@ -15,6 +15,7 @@ import { Registro } from './pages/Registro/Registro';
 import { Navbar } from './componentes/Navbar/Navbar';
 import { AdministracionProductos } from './componentes/Admin/AdministracionProductos';
 import { Usuario } from './componentes/Usuario/Usuario';
+import { MiPerfil } from './componentes/MiPerfil/MiPerfil'
 //npm install react-router-dom
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
         <Route path="/registro" element={<Registro />} />
         <Route path="/inventario" element={<AdministracionProductos />} />
         <Route path="/usuario" element={<Usuario/>} />
+        <Route path="/Perfil" element={<MiPerfil/>}/>
 
       </Routes>
     </Router>
