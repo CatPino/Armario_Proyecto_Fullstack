@@ -27,7 +27,6 @@ public class JwtUtil {
     private long jwtExpirationMs;
 
     private Key getSigningKey() {
-        // Clave HMAC a partir del secret
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -51,13 +50,19 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    // ======== Generar token a partir del Usuario ========
+    // 🔥 CORREGIDO: el rol se vuelve ROLE_XXXX
     public String generateToken(Usuario usuario) {
         Map<String, Object> claims = new HashMap<>();
+
         claims.put("id", usuario.getId());
-        if (usuario.getRol() != null) {
-            claims.put("rol", usuario.getRol().getNombre());
-        }
+
+        // rol normalizado
+        String rol = usuario.getRol() != null
+                ? usuario.getRol().getNombre().toUpperCase()
+                : "CLIENTE";
+
+        claims.put("rol", "ROLE_" + rol);  // ⭐ IMPORTANTE
+
         return createToken(claims, usuario.getEmail());
     }
 
@@ -67,14 +72,13 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)     // email
+                .setSubject(subject)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // ======== Validar token ========
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return username.equalsIgnoreCase(userDetails.getUsername()) && !isTokenExpired(token);

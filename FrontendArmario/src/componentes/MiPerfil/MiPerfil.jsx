@@ -57,47 +57,53 @@ export function MiPerfil() {
   };
 
   const guardarCambios = async () => {
-    try {
-      const token = usuario.token;
-      if (!token) {
-        setMensaje("❌ No hay sesión activa");
-        return;
-      }
-
-      const res = await fetch(
-        `http://localhost:8082/api/usuarios/${usuario.id}/perfil`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            nombre: usuario.nombre,
-            telefono: usuario.telefono,
-            region: usuario.region,
-            comuna: usuario.comuna,
-            direccion: usuario.direccion,
-            departamento: usuario.departamento,
-            infoEnvio: usuario.infoEnvio,
-          }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Error al actualizar");
-
-      const actualizado = await res.json();
-
-      localStorage.setItem("usuario", JSON.stringify(actualizado));
-      setUsuario(actualizado);
-
-      setMensaje("✔ Datos actualizados correctamente");
-      setEditando(false);
-
-    } catch (e) {
-      setMensaje("❌ Error al guardar los cambios");
+  try {
+    const token = usuario.token;
+    if (!token) {
+      setMensaje("❌ No hay sesión activa");
+      return;
     }
-  };
+
+    const res = await fetch(
+      `http://localhost:8082/api/usuarios/${usuario.id}/perfil`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          nombre: usuario.nombre,
+          telefono: usuario.telefono,
+          region: usuario.region,
+          comuna: usuario.comuna,
+          direccion: usuario.direccion,
+          departamento: usuario.departamento,
+          infoEnvio: usuario.infoEnvio,
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error("Error al actualizar");
+
+    const actualizado = await res.json();
+
+    // 🔥 Mantener el token
+    const usuarioConToken = {
+      ...actualizado,
+      token: usuario.token
+    };
+
+    localStorage.setItem("usuario", JSON.stringify(usuarioConToken));
+    setUsuario(usuarioConToken);
+
+    setMensaje("✔ Datos actualizados correctamente");
+    setEditando(false);
+
+  } catch (e) {
+    setMensaje("❌ Error al guardar los cambios");
+  }
+};
 
   // ==========================
   // UI
