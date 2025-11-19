@@ -1,5 +1,6 @@
 package com.backend.backend_usuario.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,14 +67,19 @@ public class UsuarioController {
 
         String token = jwtUtil.generateToken(usuario);
 
-        Map<String, Object> respuesta = Map.of(
-                "token", token,
-                "id", usuario.getId(),
-                "nombre", usuario.getNombre(),
-                "email", usuario.getEmail(),
-                "rol", usuario.getRol().getNombre(),
-                "estado", usuario.isEstado()
-        );
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("token", token);
+        respuesta.put("id", usuario.getId());
+        respuesta.put("nombre", usuario.getNombre());
+        respuesta.put("email", usuario.getEmail());
+        respuesta.put("telefono", usuario.getTelefono());
+        respuesta.put("region", usuario.getRegion());
+        respuesta.put("comuna", usuario.getComuna());
+        respuesta.put("direccion", usuario.getDireccion());
+        respuesta.put("departamento", usuario.getDepartamento());
+        respuesta.put("infoEnvio", usuario.getInfoEnvio());
+        respuesta.put("rol", usuario.getRol().getNombre());
+        respuesta.put("estado", usuario.isEstado());
 
         return ResponseEntity.ok(respuesta);
     }
