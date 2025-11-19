@@ -7,7 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.backend.backend_usuario.dto.SolicitudCrearUsuario;
-import com.backend.backend_usuario.dto.SolicitudActualizarUsuario;
+import com.backend.backend_usuario.dto.ActualizarPerfil;
+import com.backend.backend_usuario.dto.ActualizarUsuarioAdmin;
 import com.backend.backend_usuario.entities.Usuario;
 import com.backend.backend_usuario.repositories.UsuarioRepository;
 import com.backend.backend_usuario.repositories.RolRepository;
@@ -25,23 +26,20 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder; 
 
-    // ======================= CREAR =======================
+    
    @Override
     public Usuario crear(SolicitudCrearUsuario req) {
-    // 🔍 Validar que el correo venga con valor
+
     if (req.email() == null || req.email().isBlank()) {
         throw new RuntimeException("El correo electrónico no puede estar vacío.");
     }
 
-    // 🔍 Normalizar el correo
     String email = req.email().trim().toLowerCase();
 
-    // ✅ Verificar si ya existe realmente en la base
     if (usuarioRepository.existsByEmail(email)) {
         throw new RuntimeException("El correo electrónico ya está registrado.");
     }
 
-    // 🧱 Crear el usuario normalmente
     Usuario usuario = new Usuario();
     usuario.setNombre(req.nombre());
     usuario.setEmail(email);
@@ -58,7 +56,23 @@ public class UsuarioServiceImpl implements UsuarioService {
     return usuarioRepository.save(usuario);
     }
 
-    // ======================= OBTENER POR ID =======================
+    @Override
+    public Usuario actualizarPerfil(Long id, ActualizarPerfil datos) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (datos.getNombre() != null) usuario.setNombre(datos.getNombre());
+        if (datos.getTelefono() != null) usuario.setTelefono(datos.getTelefono());
+        if (datos.getRegion() != null) usuario.setRegion(datos.getRegion());
+        if (datos.getComuna() != null) usuario.setComuna(datos.getComuna());
+        if (datos.getDireccion() != null) usuario.setDireccion(datos.getDireccion());
+        if (datos.getDepartamento() != null) usuario.setDepartamento(datos.getDepartamento());
+        if (datos.getInfoEnvio() != null) usuario.setInfoEnvio(datos.getInfoEnvio());
+
+        return usuarioRepository.save(usuario);
+    }
+
+
     @Override
     public Usuario obtenerPorId(Long id) {
         return usuarioRepository.findById(id)
@@ -75,15 +89,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         return passwordEncoder.matches(passwordPlano, passwordHash);
     }
 
-    // ======================= LISTAR =======================
+
     @Override
     public List<Usuario> listarTodos() {
         return (List<Usuario>) usuarioRepository.findAll();
     }
 
-    // ======================= ACTUALIZAR =======================
     @Override
-    public Usuario actualizar(Long id, SolicitudActualizarUsuario req) {
+    public Usuario actualizar(Long id, ActualizarUsuarioAdmin req) {
         Usuario existente = obtenerPorId(id);
 
         if (req.nombre() != null) existente.setNombre(req.nombre());
