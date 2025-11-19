@@ -349,6 +349,17 @@ export function Navbar() {
 
                   <div className="d-flex justify-content-center gap-3 mt-3">
                     <button
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        navigate("/perfil");
+                        window.bootstrap.Modal.getInstance(
+                          document.getElementById("usuarioModal")
+                        ).hide();
+                      }}
+                    >
+                      Mi Perfil
+                    </button>
+                    <button
                       className="btn button1"
                       onClick={() => {
                         navigate("/productos");
@@ -359,7 +370,6 @@ export function Navbar() {
                     >
                       Ir a comprar
                     </button>
-
                     <button
                       className="btn button2"
                       onClick={handleLogout}
