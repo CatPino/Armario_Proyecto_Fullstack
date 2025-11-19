@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.backend.backend_usuario.dto.SolicitudActualizarUsuario;
+import com.backend.backend_usuario.dto.ActualizarPerfil;
+import com.backend.backend_usuario.dto.ActualizarUsuarioAdmin;
 import com.backend.backend_usuario.dto.SolicitudCrearUsuario;
 import com.backend.backend_usuario.entities.Usuario;
 import com.backend.backend_usuario.security.JwtUtil;
@@ -22,25 +23,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    // Inyección por constructor (Lombok genera el constructor)
     private final UsuarioService usuarioService;
     private final JwtUtil jwtUtil;
 
-    // ======================= CREAR =======================
     @PostMapping
     public ResponseEntity<Usuario> crearUsuario(@Valid @RequestBody SolicitudCrearUsuario req) {
         Usuario nuevo = usuarioService.crear(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
-    // ======================= OBTENER POR ID =======================
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
         Usuario usuario = usuarioService.obtenerPorId(id);
         return ResponseEntity.ok(usuario);
     }
 
-    // ======================= LOGIN =======================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
         String email = req.get("email");
@@ -67,10 +64,8 @@ public class UsuarioController {
                     .body(Map.of("error", "Usuario inactivo"));
         }
 
-        // Generamos token JWT
         String token = jwtUtil.generateToken(usuario);
 
-        // Enviamos datos del usuario + token
         Map<String, Object> respuesta = Map.of(
                 "token", token,
                 "id", usuario.getId(),
@@ -83,48 +78,52 @@ public class UsuarioController {
         return ResponseEntity.ok(respuesta);
     }
 
-    // ======================= LISTAR TODOS =======================
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.listarTodos();
         return ResponseEntity.ok(usuarios);
     }
 
-    // ======================= ACTUALIZAR =======================
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> actualizarUsuario(
             @PathVariable Long id,
-            @Valid @RequestBody SolicitudActualizarUsuario req) {
+            @Valid @RequestBody ActualizarUsuarioAdmin req) {
 
         Usuario actualizado = usuarioService.actualizar(id, req);
         return ResponseEntity.ok(actualizado);
     }
 
-    // ======================= ELIMINAR =======================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ======================= DESACTIVAR =======================
+
     @PatchMapping("/{id}/desactivar")
     public ResponseEntity<Usuario> desactivarUsuario(@PathVariable Long id) {
         Usuario desactivado = usuarioService.desactivar(id);
         return ResponseEntity.ok(desactivado);
     }
 
-    // ======================= LISTAR ACTIVOS =======================
     @GetMapping("/activos")
     public ResponseEntity<List<Usuario>> listarActivos() {
         List<Usuario> activos = usuarioService.listarActivos();
         return ResponseEntity.ok(activos);
     }
 
-    // ======================= LISTAR INACTIVOS =======================
     @GetMapping("/inactivos")
     public ResponseEntity<List<Usuario>> listarInactivos() {
         List<Usuario> inactivos = usuarioService.listarInactivos();
         return ResponseEntity.ok(inactivos);
+    }
+
+    @PatchMapping("/{id}/perfil")
+    public ResponseEntity<Usuario> actualizarPerfil(
+            @PathVariable Long id,
+            @RequestBody ActualizarPerfil req
+    ) {
+        Usuario actualizado = usuarioService.actualizarPerfil(id, req);
+        return ResponseEntity.ok(actualizado);
     }
 }

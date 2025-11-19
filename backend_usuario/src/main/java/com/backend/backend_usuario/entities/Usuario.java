@@ -61,6 +61,15 @@ public class Usuario {
     @Size(max = 100)
     private String comuna;
 
+    @Size(max = 200)
+    private String direccion;  
+
+    @Size(max = 50)
+    private String departamento; 
+
+    @Size(max = 255)
+    private String infoEnvio; 
+
     @Column(name = "estado", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
     private boolean estado = true;
 
