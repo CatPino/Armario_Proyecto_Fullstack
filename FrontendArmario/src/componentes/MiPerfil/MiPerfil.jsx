@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import "./MiPerfil.css"; 
+import "./MiPerfil.css";
 
 export function MiPerfil() {
   const [usuario, setUsuario] = useState(null);
@@ -8,7 +8,9 @@ export function MiPerfil() {
   const [mensaje, setMensaje] = useState("");
   const [comunas, setComunas] = useState([]);
 
-  // === Cargar usuario desde localStorage ===
+  // ==========================
+  // CARGAR USUARIO
+  // ==========================
   useEffect(() => {
     const guardado = localStorage.getItem("usuario");
     if (guardado) {
@@ -16,43 +18,59 @@ export function MiPerfil() {
     }
   }, []);
 
-  // === Tabla de regiones/comunas (misma que en tu Registro) ===
+  // ==========================
+  // REGIONES Y COMUNAS
+  // ==========================
   const comunasPorRegion = {
-    "Región Metropolitana": ["Santiago","Cerrillos","Cerro Navia","Conchalí","La Florida","Maipú"],
-    "Valparaíso": ["Valparaíso","Viña del Mar","Concón","Quilpué"],
-    "Maule": ["Talca","Curicó","Linares","Constitución"],
-    // 👉 Pon aquí el resto igual que en tu Registro
+    "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
+    "Tarapacá": ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"],
+    "Antofagasta": [
+      "Antofagasta","Mejillones","Sierra Gorda","Taltal","Calama",
+      "Ollagüe","San Pedro de Atacama","Tocopilla","María Elena"
+    ],
+    // ...
+    // (TU LISTA COMPLETA AQUÍ)
+    // ...
   };
 
-  // Cargar comunas según la región del usuario
+  // ==========================
+  // ACTUALIZAR COMUNAS
+  // ==========================
   useEffect(() => {
-    if (usuario?.region && comunasPorRegion[usuario.region]) {
-      setComunas(comunasPorRegion[usuario.region]);
+    if (usuario && usuario.region) {
+      setComunas(comunasPorRegion[usuario.region] || []);
     }
-  }, [usuario?.region]);
+  }, [usuario]);
 
-  if (!usuario) return <h2>Cargando...</h2>;
+  // ==========================
+  // LOADING (DEBE IR AHORA)
+  // ==========================
+  if (!usuario) {
+    return <h2>Cargando...</h2>;
+  }
 
-  // === Cuando el usuario cambia algo ===
+  // ==========================
+  // HANDLERS
+  // ==========================
   const handleChange = (e) => {
     setUsuario({ ...usuario, [e.target.name]: e.target.value });
-
-    if (e.target.name === "region") {
-      setComunas(comunasPorRegion[e.target.value] || []);
-      setUsuario((prev) => ({ ...prev, comuna: "" }));
-    }
   };
 
-  // === Guardar cambios al backend ===
   const guardarCambios = async () => {
     try {
+      const token = usuario.token;
+      if (!token) {
+        setMensaje("❌ No hay sesión activa");
+        return;
+      }
+
       const res = await fetch(
         `http://localhost:8082/api/usuarios/${usuario.id}/perfil`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${usuario.token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             nombre: usuario.nombre,
@@ -66,169 +84,156 @@ export function MiPerfil() {
         }
       );
 
-      if (!res.ok) throw new Error("No se pudo actualizar");
+      if (!res.ok) throw new Error("Error al actualizar");
 
       const actualizado = await res.json();
 
-      // Guardar actualizado en localStorage
       localStorage.setItem("usuario", JSON.stringify(actualizado));
       setUsuario(actualizado);
 
       setMensaje("✔ Datos actualizados correctamente");
       setEditando(false);
-    } catch (error) {
+
+    } catch (e) {
       setMensaje("❌ Error al guardar los cambios");
     }
   };
 
+  // ==========================
+  // UI
+  // ==========================
   return (
     <main className="container container-perfil" style={{ maxWidth: "700px" }}>
-      <h2 className="mb-2">
-        <strong>Mi Perfil – {usuario.nombre}</strong>
-      </h2>
-      <h3 className="text-muted mb-4">Información de tu cuenta</h3>
+      <h2><strong>Mi Perfil – {usuario.nombre}</strong></h2>
+      <h3 className="text-muted mb-3">Información de tu cuenta</h3>
 
-      {mensaje && (
-        <div className="alert alert-info text-center">{mensaje}</div>
-      )}
+      <form>
 
-      <div>
-        <form>
+        {/* NOMBRE */}
+        <div className="mb-3">
+          <label>Nombre</label>
+          <input
+            id="nombre"
+            name="nombre"
+            disabled={!editando}
+            type="text"
+            className="form-control"
+            value={usuario.nombre}
+            onChange={handleChange}
+          />
+        </div>
 
-          {/* ================= Nombre ================= */}
-          <div className="mb-3">
-            <label className="form-label">Nombre</label>
-            <input
-              disabled={!editando}
-              type="text"
-              name="nombre"
-              value={usuario.nombre || ""}
-              className="form-control"
-              onChange={handleChange}
-            />
-          </div>
+        {/* EMAIL */}
+        <div className="mb-3">
+          <label>Correo electrónico</label>
+          <input disabled type="email" className="form-control" value={usuario.email} />
+          <small className="text-muted">No se puede modificar</small>
+        </div>
 
-          {/* ================= Email (NO EDITABLE) ================= */}
-          <div className="mb-3">
-            <label className="form-label">Correo electrónico</label>
-            <input
-              disabled
-              type="email"
-              value={usuario.email}
-              className="form-control"
-            />
-            <small className="text-muted">No se puede modificar</small>
-          </div>
+        {/* TELEFONO */}
+        <div className="mb-3">
+          <label>Teléfono</label>
+          <input
+            id="telefono"
+            name="telefono"
+            disabled={!editando}
+            type="text"
+            className="form-control"
+            value={usuario.telefono || ""}
+            onChange={handleChange}
+          />
+        </div>
 
-          {/* ================= Teléfono ================= */}
-          <div className="mb-3">
-            <label className="form-label">Teléfono</label>
-            <input
-              disabled={!editando}
-              type="text"
-              name="telefono"
-              className="form-control"
-              value={usuario.telefono || ""}
-              onChange={handleChange}
-            />
-          </div>
+        {/* REGION */}
+        <div className="mb-3">
+          <label>Región</label>
+          <select
+            id="region"
+            name="region"
+            disabled={!editando}
+            className="form-select"
+            value={usuario.region || ""}
+            onChange={handleChange}
+          >
+            <option value="">Selecciona una región</option>
+            {Object.keys(comunasPorRegion).map((region) => (
+              <option key={region} value={region}>
+                {region}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {/* ================= Región ================= */}
-          <div className="mb-3">
-            <label className="form-label">Región</label>
-            <select
-              disabled={!editando}
-              name="region"
-              className="form-select"
-              value={usuario.region || ""}
-              onChange={handleChange}
-            >
-              <option value="">Selecciona una región</option>
-              {Object.keys(comunasPorRegion).map((r) => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          </div>
+        {/* COMUNA */}
+        <div className="mb-3">
+          <label>Comuna</label>
+          <select
+            id="comuna"
+            name="comuna"
+            disabled={!editando}
+            className="form-select"
+            value={usuario.comuna || ""}
+            onChange={handleChange}
+          >
+            <option value="">Selecciona una comuna</option>
+            {comunas.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
 
-          {/* ================= Comuna ================= */}
-          <div className="mb-3">
-            <label className="form-label">Comuna</label>
-            <select
-              disabled={!editando || comunas.length === 0}
-              name="comuna"
-              className="form-select"
-              value={usuario.comuna || ""}
-              onChange={handleChange}
-            >
-              <option value="">Selecciona una comuna</option>
-              {comunas.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+        <div className="mb-3">
+          <label>Dirección</label>
+          <input
+            id="direccion"
+            disabled={!editando}
+            name="direccion"
+            type="text"
+            className="form-control"
+            value={usuario.direccion || ""}
+            onChange={handleChange}
+          />
+        </div>
 
-          {/* ================= Dirección ================= */}
-          <div className="mb-3">
-            <label className="form-label">Dirección</label>
-            <input
-              disabled={!editando}
-              type="text"
-              name="direccion"
-              className="form-control"
-              value={usuario.direccion || ""}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="mb-3">
+          <label>Departamento</label>
+          <input
+            id="departamento"
+            disabled={!editando}
+            name="departamento"
+            type="text"
+            className="form-control"
+            value={usuario.departamento || ""}
+            onChange={handleChange}
+          />
+        </div>
 
-          {/* ================= Departamento ================= */}
-          <div className="mb-3">
-            <label className="form-label">Departamento</label>
-            <input
-              disabled={!editando}
-              type="text"
-              name="departamento"
-              className="form-control"
-              value={usuario.departamento || ""}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="mb-3">
+          <label>Información adicional</label>
+          <textarea
+            id="infoEnvio"
+            disabled={!editando}
+            name="infoEnvio"
+            className="form-control"
+            value={usuario.infoEnvio || ""}
+            onChange={handleChange}
+          />
+        </div>
 
-          {/* ================= Información de envío ================= */}
-          <div className="mb-3">
-            <label className="form-label">Información adicional de envío</label>
-            <textarea
-              disabled={!editando}
-              name="infoEnvio"
-              className="form-control"
-              value={usuario.infoEnvio || ""}
-              onChange={handleChange}
-            />
-          </div>
+        {!editando ? (
+          <button className="btn button1 w-100" type="button" onClick={() => setEditando(true)}>
+            Editar perfil
+          </button>
+        ) : (
+          <button className="btn btn-success w-100" type="button" onClick={guardarCambios}>
+            Guardar cambios
+          </button>
+        )}
 
-          {/* ================= BOTONES ================= */}
-          {!editando ? (
-            <button
-              type="button"
-              className="btn button1 w-100"
-              onClick={() => setEditando(true)}
-            >
-              Editar perfil
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="btn btn-success w-100"
-              onClick={guardarCambios}
-            >
-              Guardar cambios
-            </button>
-          )}
+        {mensaje && <div className="alert alert-info text-center mt-3">{mensaje}</div>}
 
-          <Link to="/" className="btn btn-secondary w-100 mt-3">
-            Volver
-          </Link>
-        </form>
-      </div>
+        <Link to="/" className="btn btn-secondary w-100 mt-3">Volver</Link>
+      </form>
     </main>
   );
 }
