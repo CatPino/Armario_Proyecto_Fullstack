@@ -31,6 +31,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // =============================
+        // 🔥 LOGS PARA SABER QUÉ LLEGA
+        // =============================
+        System.out.println("=============== FILTRO JWT ===============");
+        System.out.println("Método: " + request.getMethod());
+        System.out.println("URL: " + request.getRequestURI());
+        System.out.println("Authorization recibido: " + request.getHeader("Authorization"));
+        System.out.println("==========================================");
+
         final String authHeader = request.getHeader("Authorization");
 
         String username = null;
@@ -38,10 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwtToken = authHeader.substring(7);
+
             try {
                 username = jwtUtil.extractUsername(jwtToken);
             } catch (Exception e) {
-                // token inválido, seguimos sin autenticar
+                System.out.println("❌ ERROR extrayendo username del token: " + e.getMessage());
             }
         }
 
@@ -60,20 +70,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                System.out.println("❌ TOKEN INVALIDO o EXPIRADO");
             }
         }
 
         filterChain.doFilter(request, response);
     }
 
-    @Override
+   @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
+        String method = request.getMethod();
 
-        // Endpoints públicos (login, crear usuario, etc.)
-        return path.startsWith("/api/usuarios/login")
-                || (path.equals("/api/usuarios") && "POST".equalsIgnoreCase(request.getMethod()))
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs");
+        return 
+            path.startsWith("/api/usuarios/login")
+            || (path.equals("/api/usuarios") && method.equalsIgnoreCase("POST"))
+            || path.matches("/api/usuarios/.+/perfil")  
+            || path.startsWith("/swagger-ui")
+            || path.startsWith("/v3/api-docs");
     }
 }
