@@ -22,5 +22,5 @@ public class Pago {
 
     // Relación 1:1 con Boleta (bidireccional)
     @OneToOne(mappedBy = "pago", cascade = CascadeType.ALL)
-    private Boleta boleta;
+    private Boleta boleta; 
 }

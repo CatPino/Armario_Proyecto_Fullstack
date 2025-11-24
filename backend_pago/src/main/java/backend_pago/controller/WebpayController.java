@@ -61,11 +61,16 @@ public class WebpayController {
                     returnUrl
             );
 
-            // 🔐 Crear JWT con los datos del cliente
             Map<String, Object> claims = new HashMap<>();
             claims.put("nombre", request.getNombreCliente());
             claims.put("correo", request.getCorreoCliente());
+            claims.put("telefono", request.getTelefonoCliente());
+
             claims.put("direccion", request.getDireccionCliente());
+            claims.put("region", request.getRegionCliente());
+            claims.put("comuna", request.getComunaCliente());
+            claims.put("indicaciones", request.getIndicacionesEnvio());
+
             claims.put("carrito", request.getDetalles());
             claims.put("total", request.getTotal());
 
@@ -73,7 +78,7 @@ public class WebpayController {
 
             response.put("url", tx.getUrl() + "?token_ws=" + tx.getToken());
             response.put("token", tx.getToken());
-            response.put("jwt", jwt); // 🔥 Se envía al frontend
+            response.put("jwt", jwt);
             response.put("mensaje", "Transacción creada correctamente");
 
         } catch (Exception e) {
@@ -83,7 +88,6 @@ public class WebpayController {
         return response;
     }
 
-    // 💳 2. Confirmar pago Webpay + leer JWT
     @GetMapping("/confirmar")
     public Boleta confirmarPago(
             @RequestParam("token_ws") String token,
@@ -108,18 +112,24 @@ public class WebpayController {
 
             // Crear boleta asociada
             Boleta boleta = new Boleta();
-            boleta.setNombreCliente((String) dataCliente.get("nombre"));
+            String nombre = (String) dataCliente.get("nombre");
+            boleta.setNombreCliente(nombre);
             boleta.setCorreoCliente((String) dataCliente.get("correo"));
-            boleta.setDireccionCliente((String) dataCliente.get("direccion"));
+            boleta.setDireccionCliente(
+                dataCliente.get("direccion") + ", " +
+                dataCliente.get("comuna") + ", " +
+                dataCliente.get("region")
+            );
+
             boleta.setPago(pago);
 
-            // Crear detalles desde el JWT
             List<DetalleBoleta> detalles = new ArrayList<>();
             for (DetalleBoletaRequest d : request.getDetalles()) {
                 DetalleBoleta det = new DetalleBoleta();
                 det.setProducto(d.getProducto());
                 det.setCantidad(d.getCantidad());
                 det.setPrecioUnitario(d.getPrecioUnitario());
+                det.setSubtotal(d.getSubtotal());
                 det.setBoleta(boleta);
                 detalles.add(det);
             }
