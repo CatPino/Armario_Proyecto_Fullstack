@@ -1,9 +1,14 @@
 package backend_pago.entities;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Data
 @NoArgsConstructor
@@ -22,5 +27,8 @@ public class Pago {
 
     // Relación 1:1 con Boleta (bidireccional)
     @OneToOne(mappedBy = "pago", cascade = CascadeType.ALL)
-    private Boleta boleta; 
+    @JsonIgnoreProperties("pago")
+    @ToString.Exclude               // ⛔ Evita recursión infinita en toString()
+    @EqualsAndHashCode.Exclude      // ⛔ Evita recursión infinita en equals/hashCode
+    private Boleta boleta;
 }

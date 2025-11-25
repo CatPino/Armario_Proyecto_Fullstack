@@ -25,7 +25,6 @@ import com.inventario.backend_inventario.servicies.ProductoService;
 import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "http://localhost:5173")
-
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoRestControllers {
@@ -94,12 +93,12 @@ public class ProductoRestControllers {
             String url = productoServices.subirImagen(id, archivo);
             return ResponseEntity.ok(Map.of("imagenUrl", url));
 
-        } catch (NoSuchElementException e) { // si cambiaras obtenerId para que lance esta
+        } catch (NoSuchElementException e) {
             return ResponseEntity.status(404).body(Map.of("error", "Producto no encontrado: " + id));
-        } catch (RuntimeException e) { // errores controlados de service
+        } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        } catch (Exception e) { // errores inesperados
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(Map.of("error", "Error inesperado"));
         }
@@ -128,5 +127,17 @@ public class ProductoRestControllers {
     public ResponseEntity<List<Producto>> obtenerProductosConStockBajo() {
         List<Producto> productos = productoServices.listarStockBajo();
         return ResponseEntity.ok(productos);
+    }
+
+    @PatchMapping("/{id}/descontar")
+    public ResponseEntity<?> descontarStock(
+            @PathVariable Long id,
+            @RequestParam int cantidad) {
+
+        productoServices.descontarStock(id, cantidad);
+        return ResponseEntity.ok(Map.of(
+            "idProducto", id,
+            "cantidadDescontada", cantidad
+        ));
     }
 }

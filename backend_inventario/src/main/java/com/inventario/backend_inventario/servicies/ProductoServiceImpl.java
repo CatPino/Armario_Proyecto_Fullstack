@@ -127,4 +127,16 @@ public class ProductoServiceImpl implements ProductoService {
         return productoRepositories.findByActivoTrue();
     }
 
+    @Override
+    public void descontarStock(Long idProducto, int cantidad) {
+    Producto p = obtenerId(idProducto);
+
+    if (p.getStock() < cantidad) {
+        throw new RuntimeException("No hay stock suficiente");
+    }
+    p.setStock(p.getStock() - cantidad);
+    productoRepositories.save(p);
+}
+
+
 }

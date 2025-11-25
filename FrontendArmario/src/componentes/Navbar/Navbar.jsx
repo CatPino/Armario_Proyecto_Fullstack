@@ -299,9 +299,8 @@ export function Navbar() {
               onClick={() => {
                 const modal = document.getElementById("carritoModal");
                 const instancia = window.bootstrap.Modal.getInstance(modal);
-                if (instancia) instancia.hide(); // 👈 CIERRA EL MODAL AL INSTANTE
-
-                navigate("/pago"); // 👈 Luego navega
+                if (instancia) instancia.hide(); 
+                navigate("/pago"); 
               }}
             >
               Ir al pago
@@ -311,7 +310,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* ============ MODAL USUARIO ============ */}
+
       <div className="modal fade" id="usuarioModal" tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">

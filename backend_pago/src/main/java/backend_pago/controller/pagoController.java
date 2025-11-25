@@ -1,33 +1,65 @@
 package backend_pago.controller;
 
+import backend_pago.dto.PagoRequest;
+import backend_pago.entities.Boleta;
+import backend_pago.entities.DetalleBoleta;
 import backend_pago.entities.Pago;
 import backend_pago.service.pagoService;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pago")
-@CrossOrigin(origins = "http://localhost:5173")
-public class pagoController {
+@RequestMapping("/api/pagos")
+public class PagoController {
 
     @Autowired
     private pagoService pagoService;
 
-    @GetMapping("/listar")
-    public List<Pago> listarPagos() {
-        return pagoService.obtenerTodos();
+    @RequestMapping(value = "/confirmar", method = RequestMethod.OPTIONS)
+    public ResponseEntity<Void> preflight() {
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{id}")
-    public Pago obtenerPago(@PathVariable Long id) {
-        return pagoService.obtenerPorId(id);
-    }
+    @PostMapping("/confirmar")
+    public ResponseEntity<Boleta> confirmarPago(@RequestBody PagoRequest request) {
 
-    @DeleteMapping("/{id}")
-    public void eliminarPago(@PathVariable Long id) {
-        pagoService.eliminarPago(id);
+        Pago pago = new Pago();
+        pago.setMetodoPago(request.getMetodoPago());
+        pago.setTotal(request.getTotal());
+
+        Boleta boleta = new Boleta();
+        boleta.setNombreCliente(request.getNombreCliente());
+        boleta.setCorreoCliente(request.getCorreoCliente());
+        boleta.setTelefonoCliente(request.getTelefonoCliente());
+        boleta.setDireccionCliente(
+                request.getDireccionCliente() + ", " +
+                request.getComunaCliente() + ", " +
+                request.getRegionCliente()
+        );
+        boleta.setIndicacionesEnvio(request.getIndicacionesEnvio());
+        boleta.setPago(pago);
+
+        List<DetalleBoleta> detalles = new ArrayList<>();
+        for (var d : request.getDetalles()) {
+            DetalleBoleta det = new DetalleBoleta();
+            det.setProducto(d.getProducto());
+            det.setCantidad(d.getCantidad());
+            det.setPrecioUnitario(d.getPrecioUnitario());
+            det.setSubtotal(d.getSubtotal());
+            det.setBoleta(boleta);
+            detalles.add(det);
+        }
+
+        boleta.setDetalles(detalles);
+        pago.setBoleta(boleta);
+
+        Pago pagoGuardado = pagoService.crearPago(pago, boleta, detalles);
+
+        Boleta boletaReal = pagoGuardado.getBoleta();
+        return ResponseEntity.ok(boletaReal);
     }
 }
