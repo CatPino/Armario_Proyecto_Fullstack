@@ -48,7 +48,7 @@ public class WebpayController {
         try {
             String buyOrder = "ORD-" + UUID.randomUUID().toString().substring(0, 8);
             String sessionId = UUID.randomUUID().toString();
-            String returnUrl = "http://localhost:8083/api/webpay/confirmar";
+            String returnUrl = "http://localhost:5173/voucher";
 
             pagosPendientes.put(sessionId, request);
 
@@ -91,12 +91,17 @@ public class WebpayController {
     @GetMapping("/confirmar")
     public Boleta confirmarPago(
             @RequestParam("token_ws") String token,
-            @RequestHeader("Authorization") String authHeader
+            @RequestHeader(value = "Authorization", required = false) String authHeader
     ) {
         try {
-            // Extraer token JWT
-            String jwt = authHeader.replace("Bearer ", "");
-            Map<String, Object> dataCliente = jwtUtils.getClaims(jwt);
+
+            Map<String, Object> dataCliente = null;
+
+            // Solo extraemos JWT si viene en el header
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String jwt = authHeader.replace("Bearer ", "");
+                dataCliente = jwtUtils.getClaims(jwt);
+            }
 
             WebpayPlusTransactionCommitResponse commit = transaction.commit(token);
             String sessionId = commit.getSessionId();
@@ -112,14 +117,16 @@ public class WebpayController {
 
             // Crear boleta asociada
             Boleta boleta = new Boleta();
-            String nombre = (String) dataCliente.get("nombre");
-            boleta.setNombreCliente(nombre);
-            boleta.setCorreoCliente((String) dataCliente.get("correo"));
-            boleta.setDireccionCliente(
-                dataCliente.get("direccion") + ", " +
-                dataCliente.get("comuna") + ", " +
-                dataCliente.get("region")
-            );
+
+            if (dataCliente != null) {
+                boleta.setNombreCliente((String) dataCliente.get("nombre"));
+                boleta.setCorreoCliente((String) dataCliente.get("correo"));
+                boleta.setDireccionCliente(
+                        dataCliente.get("direccion") + ", " +
+                        dataCliente.get("comuna") + ", " +
+                        dataCliente.get("region")
+                );
+            }
 
             boleta.setPago(pago);
 
@@ -147,4 +154,5 @@ public class WebpayController {
             throw new RuntimeException("Error al confirmar pago: " + e.getMessage());
         }
     }
+
 }
