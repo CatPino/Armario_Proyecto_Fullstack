@@ -3,12 +3,11 @@ import { useCarrito } from "../Carrito/ContextCarrito";
 import { useNavigate } from "react-router-dom";
 
 export default function Pago() {
-  const { carrito, totalProductos } = useCarrito();
+  const { carrito } = useCarrito();
   const navigate = useNavigate();
 
   const [usuario, setUsuario] = useState({
     nombre: "",
-    apellido: "",
     email: "",
     telefono: "",
     region: "",
@@ -21,7 +20,7 @@ export default function Pago() {
   const [comunas, setComunas] = useState([]);
 
   // ==========================
-  // REGIONES Y COMUNAS (COMPLETO)
+  // REGIONES Y COMUNAS
   // ==========================
   const comunasPorRegion = {
     "Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
@@ -48,11 +47,10 @@ export default function Pago() {
       "Melipilla","Alhué","Curacaví","María Pinto","San Pedro","Talagante","El Monte","Isla de Maipo",
       "Padre Hurtado","Peñaflor"
     ]
-    // (puedes agregar las demás, pero Metrop + V Reg ya funcionan)
   };
 
   // ==========================
-  // CARGAR DATOS SI EXISTE SESIÓN
+  // CARGAR DATOS SI EL USUARIO ESTÁ LOGEADO
   // ==========================
   useEffect(() => {
     const guardado = localStorage.getItem("usuario");
@@ -62,7 +60,6 @@ export default function Pago() {
       setUsuario((prev) => ({
         ...prev,
         nombre: user.nombre || "",
-        apellido: user.apellido || "",
         email: user.email || "",
         telefono: user.telefono || "",
         region: user.region || "",
@@ -79,7 +76,7 @@ export default function Pago() {
   }, []);
 
   // ==========================
-  // CAMBIO DE INPUTS
+  // HANDLE CHANGE
   // ==========================
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,14 +89,74 @@ export default function Pago() {
   };
 
   // ==========================
-  // ENVIAR PAGO
+  // PROCESAR PAGO (WEBPAY REAL)
   // ==========================
-  const procesarPago = () => {
-    alert("✔ Pago procesado, alta Pancho!");
+  const procesarPago = async () => {
+    try {
+      if (carrito.length === 0) {
+        alert("No hay productos en el carrito.");
+        return;
+      }
 
-    // Aquí luego agregamos integración con Transbank o tu backend
+      const total = carrito.reduce(
+        (acc, p) => acc + p.precio * p.cantidad,
+        0
+      );
+
+      const user = JSON.parse(localStorage.getItem("usuario"));
+      const tokenUsuario = user?.token;
+
+      const body = {
+        nombreCliente: usuario.nombre,
+        correoCliente: usuario.email,
+        telefonoCliente: usuario.telefono,
+
+        direccionCliente: usuario.direccion + " " + usuario.departamento,
+        regionCliente: usuario.region,
+        comunaCliente: usuario.comuna,
+        indicacionesEnvio: usuario.infoEnvio,
+
+        total: total,
+        metodoPago: "WEBPAY",
+
+        detalles: carrito.map((p) => ({
+          producto: p.nombre,
+          cantidad: p.cantidad,
+          precioUnitario: p.precio,
+          subtotal: p.precio * p.cantidad
+        }))
+      };
+
+      const res = await fetch("http://localhost:8083/api/webpay/crear", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: tokenUsuario ? `Bearer ${tokenUsuario}` : ""
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (!data.url) {
+        alert("❌ Error creando transacción Webpay");
+        return;
+      }
+
+      localStorage.setItem("jwt_pago", data.jwt);
+
+      // 🔥 REDIRECCIÓN AL BANCO REAL
+      window.location.href = data.url;
+
+    } catch (error) {
+      console.error(error);
+      alert("Error al procesar el pago");
+    }
   };
 
+  // ==========================
+  // JSX
+  // ==========================
   return (
     <main className="container mt-5">
       <h2 className="mb-4"><strong>Carrito de compra</strong></h2>
@@ -140,20 +197,20 @@ export default function Pago() {
         )}
 
         <h3 className="text-end mt-3">
-          Total a pagar: {" "}
+          Total a pagar:{" "}
           <span className="text-success">
-            <strong>${carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0)}</strong>
+            <strong>
+              ${carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0)}
+            </strong>
           </span>
         </h3>
       </div>
 
-      {/* ============ FORMULARIO ============ */}
-
+      {/* INFORMACIÓN DEL CLIENTE */}
       <h2><strong>Información del cliente</strong></h2>
 
       <div className="card p-4">
         <div className="row">
-
           <div className="col-md-6 mb-3">
             <label>Nombre</label>
             <input
@@ -251,6 +308,7 @@ export default function Pago() {
         </div>
       </div>
 
+      {/* BOTÓN */}
       <div className="text-end mt-4">
         <button className="btn btn-success btn-lg" onClick={procesarPago}>
           Procesar pago
