@@ -17,7 +17,7 @@ import { AdministracionProductos } from './componentes/Admin/AdministracionProdu
 import { Usuario } from './componentes/Usuario/Usuario';
 import { MiPerfil } from './componentes/MiPerfil/MiPerfil'
 import Pago from './componentes/Pago/Pago'
-import Voucher from './componentes/voucher/voucher'
+import CompraExitosa from './compra-exitosa/compra-exitosa'
 //npm install react-router-dom
 
 function App() {
@@ -44,7 +44,8 @@ function App() {
         <Route path="/usuario" element={<Usuario/>} />
         <Route path="/Perfil" element={<MiPerfil/>}/>
         <Route path="/pago" element={<Pago/>}/>
-        <Route path='/voucher' element={<Voucher/>}/>
+        <Route path="/compra-exitosa" element={<CompraExitosa />} />
+
 
       </Routes>
     </Router>

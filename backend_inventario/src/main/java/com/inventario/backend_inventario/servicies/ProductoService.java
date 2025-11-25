@@ -21,5 +21,6 @@ public interface ProductoService {
     List<Producto> buscarPorNombre(String nombre);
     List<Producto> listarStockBajo(); 
     List<Producto> listarActivos();
+    void descontarStock(Long idProducto, int cantidad);
 
 }
