@@ -20,6 +20,7 @@ public class DetalleBoleta {
     private Integer cantidad;
     private Double precioUnitario;
     private Double subtotal;
+    private String imagenUrl;
 
     // Relación muchos a uno con Boleta
     @ManyToOne

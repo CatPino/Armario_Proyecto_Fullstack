@@ -18,6 +18,7 @@ import { Usuario } from './componentes/Usuario/Usuario';
 import { MiPerfil } from './componentes/MiPerfil/MiPerfil'
 import Pago from './componentes/Pago/Pago'
 import CompraExitosa from './compra-exitosa/compra-exitosa'
+import Ordenes from './componentes/Ordenes/Ordenes'
 //npm install react-router-dom
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
         <Route path="/Perfil" element={<MiPerfil/>}/>
         <Route path="/pago" element={<Pago/>}/>
         <Route path="/compra-exitosa" element={<CompraExitosa />} />
+        <Route path="/ordenes" element={<Ordenes/>}/>
 
 
       </Routes>

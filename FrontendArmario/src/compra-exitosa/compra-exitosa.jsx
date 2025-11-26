@@ -3,11 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function CompraExitosa() {
   const [boleta, setBoleta] = useState(null);
-  const navigate = useNavigate();  
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     const guardada = localStorage.getItem("boleta");
+
     if (guardada) {
       setBoleta(JSON.parse(guardada));
     }
@@ -23,18 +23,16 @@ export default function CompraExitosa() {
       </div>
     );
   }
-  const subtotal = boleta.detalles.reduce(
-    (acc, item) => acc + item.subtotal,
-    0
-  );
 
-  const iva = Math.round(subtotal * 0.19);
+  const subtotal = boleta.subtotal;
+  const iva = boleta.iva;
+  const total = boleta.total;
 
   return (
     <main className="container my-5">
       <div className="text-center mb-5">
         <h1 className="fw-bold" style={{ color: "#6f42c1" }}>
-          ¡Tu pago ha sido exitoso! 
+          ¡Tu pago ha sido exitoso!
         </h1>
         <h3 className="text-muted fs-5">
           Gracias por tu compra. Aquí tienes el detalle del pedido.
@@ -50,20 +48,14 @@ export default function CompraExitosa() {
         </div>
       </div>
 
-      <div
-        className="card shadow-sm p-4 mb-4"
-        style={{ borderTop: "4px solid #a16bd8" }}
-      >
-        <h2 className="fw-bold mb-3" style={{ color: "#6f42c1" }}>
-          Información del Cliente
-        </h2>
+      {/* INFORMACIÓN DEL CLIENTE */}
+      <div className="card shadow-sm p-4 mb-4" style={{ borderTop: "4px solid #a16bd8" }}>
+        <h2 className="fw-bold mb-3" style={{ color: "#6f42c1" }}>Información del Cliente</h2>
 
         <div className="row">
           <div className="col-md-12 mb-2"><strong>Nombre:</strong> {boleta.nombreCliente}</div>
           <div className="col-md-12 mb-2"><strong>Correo:</strong> {boleta.correoCliente}</div>
           <div className="col-md-12 mb-2"><strong>Teléfono:</strong> {boleta.telefonoCliente}</div>
-          <div className="col-md-12 mb-2"><strong>Región:</strong> {boleta.regionCliente}</div>
-          <div className="col-md-12 mb-2"><strong>Comuna:</strong> {boleta.comunaCliente}</div>
           <div className="col-md-12 mb-2"><strong>Dirección:</strong> {boleta.direccionCliente}</div>
           <div className="col-12 mb-2">
             <strong>Indicaciones:</strong> {boleta.indicacionesEnvio || "Sin indicaciones"}
@@ -72,10 +64,7 @@ export default function CompraExitosa() {
       </div>
 
       {/* PRODUCTOS */}
-      <div
-        className="card shadow-sm p-4 mb-4"
-        style={{ borderTop: "4px solid #caa7ff" }}
-      >
+      <div className="card shadow-sm p-4 mb-4" style={{ borderTop: "4px solid #caa7ff" }}>
         <h2 className="fw-bold mb-4" style={{ color: "#6f42c1" }}>
           Productos Comprados
         </h2>
@@ -90,12 +79,18 @@ export default function CompraExitosa() {
               <th>Subtotal</th>
             </tr>
           </thead>
+
           <tbody>
             {boleta.detalles.map((item, index) => (
               <tr key={index}>
                 <td>
                   <img
-                    src={item.imagenUrl}
+                    src={
+                      item.imagenUrl ||
+                      item.imagen_url ||
+                      item.imagen ||
+                      "/sin-imagen.png"
+                    }
                     alt={item.nombre}
                     style={{
                       width: 70,
@@ -116,19 +111,14 @@ export default function CompraExitosa() {
         </table>
       </div>
 
-      <div
-        className="card shadow-sm p-4 mb-4"
-        style={{ borderTop: "4px solid #b98cf7" }}
-      >
+      {/* INFORMACIÓN DEL PAGO */}
+      <div className="card shadow-sm p-4 mb-4" style={{ borderTop: "4px solid #b98cf7" }}>
         <h2 className="fw-bold mb-3" style={{ color: "#6f42c1" }}>
           Información del pago:
         </h2>
 
         <div><strong>Método de compra:</strong> {boleta.metodoPago}</div>
-
-        <div className="col-12 mt-2">
-          <strong>Fecha de compra:</strong> {boleta.fecha}
-        </div>
+        <div className="col-12 mt-2"><strong>Fecha de compra:</strong> {boleta.fecha}</div>
 
         <hr />
 
@@ -136,21 +126,24 @@ export default function CompraExitosa() {
         <p><strong>IVA (19%):</strong> ${iva}</p>
 
         <h2 className="fw-bold mt-3" style={{ color: "#28a745" }}>
-          Monto total: ${boleta.total}
+          Monto total: ${total}
         </h2>
       </div>
 
+      {/* BOTONES */}
       <div className="text-center mt-4">
-        <button
-          className="btn btn-lg px-4 me-3 button1"
-        >
+        <button className="btn btn-lg px-4 me-3 button1">
           Descargar comprobante 🧾
         </button>
 
         <button
           className="btn button2"
-          onClick={() => navigate("/")}
-        >Volver al inicio
+          onClick={() => {
+            localStorage.removeItem("boleta"); 
+            navigate("/");
+          }}
+        >
+          Volver al inicio
         </button>
       </div>
 

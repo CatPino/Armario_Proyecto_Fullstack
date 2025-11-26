@@ -8,7 +8,10 @@ export function ModalProductos({ categoriaNombre }) {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [mensaje, setMensaje] = useState(""); // ✅ Mensaje flash
+  const [mensaje, setMensaje] = useState("");
+
+  // 🟣 Función para formatear precios al estilo chileno
+  const formatoCLP = (v) => `$${Number(v).toLocaleString("es-CL")}`;
 
   useEffect(() => {
     async function cargar() {
@@ -51,12 +54,10 @@ export function ModalProductos({ categoriaNombre }) {
     cargar();
   }, [categoriaNombre]);
 
-  useEffect(() => {
-    if (productos.length > 0) {
-      console.log(productos[0]);
-      console.log(productos[0].id);
-    }
-  }, [productos]);
+  const mostrarMensaje = (texto, tipo = "ok") => {
+    setMensaje({ texto, tipo });
+    setTimeout(() => setMensaje(""), 2000);
+  };
 
   if (cargando) {
     return <div className="text-center mt-5">🕐 Cargando productos...</div>;
@@ -67,19 +68,19 @@ export function ModalProductos({ categoriaNombre }) {
     return categoria ? categoria.nombre : "Sin categoría";
   };
 
-  // Función para mostrar mensaje flash
-  const mostrarMensaje = (texto) => {
-    setMensaje(texto);
-    setTimeout(() => setMensaje(""), 2000); // desaparece en 2 segundos
-  };
-
   return (
     <div className="container my-5">
-
       {/* MENSAJE FLASH */}
       {mensaje && (
-        <div className="toast-mensaje">
-          {mensaje}
+        <div
+          className="toast-mensaje"
+          style={{
+            backgroundColor: mensaje.tipo === "error" ? "#ffe5e5" : "",
+            color: mensaje.tipo === "error" ? "#d30000" : "",
+            borderLeft: mensaje.tipo === "error" ? "6px solid #d30000" : "",
+          }}
+        >
+          {mensaje.texto}
         </div>
       )}
 
@@ -98,7 +99,11 @@ export function ModalProductos({ categoriaNombre }) {
                 data-bs-target={`#modal${p.id}`}
               >
                 {p.imagenUrl ? (
-                  <img src={p.imagenUrl} alt={p.nombre} className="card-img-top" />
+                  <img
+                    src={p.imagenUrl}
+                    alt={p.nombre}
+                    className="card-img-top"
+                  />
                 ) : (
                   <div
                     className="d-flex align-items-center justify-content-center bg-light"
@@ -111,13 +116,19 @@ export function ModalProductos({ categoriaNombre }) {
                 <div className="card-body">
                   <h5 className="card-title">{p.nombre}</h5>
                   <p className="card-text text-muted">{p.descripcion}</p>
-                  <h5 className="fw-bold">
-                    ${Number(p.precio).toLocaleString()} CLP
-                  </h5>
 
-                  {p.stock < 5 && (
+                  {/* 🟢 PRECIO CHILENO */}
+                  <h5 className="fw-bold">{formatoCLP(p.precio)} CLP</h5>
+
+                  {p.stock < 5 && p.stock > 0 && (
                     <p className="text-danger fw-bold mt-2">
                       ⚠️ Quedan solo {p.stock} unidades
+                    </p>
+                  )}
+
+                  {p.stock === 0 && (
+                    <p className="text-danger fw-bold mt-2">
+                      ❌ Sin stock disponible
                     </p>
                   )}
                 </div>
@@ -126,9 +137,15 @@ export function ModalProductos({ categoriaNombre }) {
                   <button
                     className="button2 w-100"
                     onClick={(e) => {
-                      e.stopPropagation(); // Evita abrir modal
-                      agregarProducto(p); // ✅ Agrega al carrito
-                      mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
+                      e.stopPropagation();
+
+                      if (p.stock === 0) {
+                        mostrarMensaje("❌ No hay stock disponible", "error");
+                        return;
+                      }
+
+                      agregarProducto(p);
+                      mostrarMensaje(`${p.nombre} agregado al carrito ✅`, "ok");
                     }}
                   >
                     Agregar al carrito
@@ -163,17 +180,37 @@ export function ModalProductos({ categoriaNombre }) {
                         alt={p.nombre}
                         className="img-fluid rounded mb-3"
                       />
-                      <p><strong>Descripción:</strong> {p.descripcion}</p>
-                      <p><strong>Precio:</strong> ${Number(p.precio).toLocaleString()} CLP</p>
-                      <p><strong>Stock:</strong> {p.stock}</p>
-                      {p.stock < 5 && (
+
+                      <p>
+                        <strong>Descripción:</strong> {p.descripcion}
+                      </p>
+
+                      {/* 🟢 PRECIO CHILENO EN MODAL */}
+                      <p>
+                        <strong>Precio:</strong> {formatoCLP(p.precio)} CLP
+                      </p>
+
+                      <p>
+                        <strong>Stock:</strong> {p.stock}
+                      </p>
+
+                      {p.stock === 0 && (
                         <p className="text-danger fw-bold">
-                          ⚠️ Quedan pocas unidades disponibles
+                          ❌ Producto sin stock
                         </p>
                       )}
+
+                      {p.stock < 5 && p.stock > 0 && (
+                        <p className="text-danger fw-bold">
+                          ⚠️ Quedan pocas unidades
+                        </p>
+                      )}
+
                       <p>
                         <strong>Categoría:</strong>{" "}
-                        {p.categoria?.nombre || obtenerNombreCategoria(p.categoria_id) || "-"}
+                        {p.categoria?.nombre ||
+                          obtenerNombreCategoria(p.categoria_id) ||
+                          "-"}
                       </p>
                     </div>
 
@@ -181,9 +218,18 @@ export function ModalProductos({ categoriaNombre }) {
                       <button className="button1" data-bs-dismiss="modal">
                         Cerrar
                       </button>
+
                       <button
                         className="button2"
                         onClick={() => {
+                          if (p.stock === 0) {
+                            mostrarMensaje(
+                              "❌ No hay stock disponible",
+                              "error"
+                            );
+                            return;
+                          }
+
                           agregarProducto(p);
                           mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
                         }}
@@ -191,6 +237,7 @@ export function ModalProductos({ categoriaNombre }) {
                         Agregar al carrito
                       </button>
                     </div>
+
                   </div>
                 </div>
               </div>

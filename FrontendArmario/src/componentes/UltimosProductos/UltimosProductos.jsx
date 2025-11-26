@@ -7,7 +7,9 @@ export function UltimosProductos() {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [mensaje, setMensaje] = useState(""); // ✅ Mensaje flash
+
+  const [mensaje, setMensaje] = useState(null); 
+  // mensaje = { texto: "...", tipo: "ok" | "error" }
 
   useEffect(() => {
     async function cargar() {
@@ -24,7 +26,9 @@ export function UltimosProductos() {
         const ultimos = dataProd
           .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion))
           .slice(0, 4);
+
         setProductos(ultimos);
+
       } catch (error) {
         console.error("❌ Error al cargar productos o categorías:", error);
       } finally {
@@ -35,18 +39,17 @@ export function UltimosProductos() {
     cargar();
   }, []);
 
+  const mostrarMensaje = (texto, tipo = "ok") => {
+    setMensaje({ texto, tipo });
+    setTimeout(() => setMensaje(null), 2000);
+  };
+
   if (cargando)
     return <div className="text-center mt-5">🕐 Cargando productos...</div>;
 
   const obtenerNombreCategoria = (categoriaId) => {
     const categoria = categorias.find((c) => c.id === categoriaId);
     return categoria ? categoria.nombre : "Sin categoría";
-  };
-
-  // Función para mostrar mensaje flash
-  const mostrarMensaje = (texto) => {
-    setMensaje(texto);
-    setTimeout(() => setMensaje(""), 2000); // desaparece en 2 segundos
   };
 
   return (
@@ -56,8 +59,16 @@ export function UltimosProductos() {
 
       {/* MENSAJE FLASH */}
       {mensaje && (
-        <div className="toast-mensaje">
-          {mensaje}
+        <div
+          className="toast-mensaje"
+          style={{
+            backgroundColor: mensaje.tipo === "error" ? "#ffe5e5" : "",
+            color: mensaje.tipo === "error" ? "#d30000" : "",
+            borderLeft:
+              mensaje.tipo === "error" ? "6px solid #d30000" : "",
+          }}
+        >
+          {mensaje.texto}
         </div>
       )}
 
@@ -90,6 +101,20 @@ export function UltimosProductos() {
                   <h5 className="fw-bold">
                     ${Number(p.precio).toLocaleString()} CLP
                   </h5>
+
+                  {/* ALERTA DE STOCK CRÍTICO */}
+                  {p.stock < 5 && p.stock > 0 && (
+                    <p className="text-danger fw-bold mt-2">
+                      ⚠️ Quedan solo {p.stock} unidades
+                    </p>
+                  )}
+
+                  {/* SIN STOCK */}
+                  {p.stock === 0 && (
+                    <p className="text-danger fw-bold mt-2">
+                      ❌ Sin stock disponible
+                    </p>
+                  )}
                 </div>
 
                 <div className="card-footer bg-transparent border-0 text-center p-2">
@@ -97,6 +122,12 @@ export function UltimosProductos() {
                     className="button2 w-100"
                     onClick={(e) => {
                       e.stopPropagation();
+
+                      if (p.stock === 0) {
+                        mostrarMensaje("❌ No hay stock disponible", "error");
+                        return;
+                      }
+
                       agregarProducto(p);
                       mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
                     }}
@@ -106,7 +137,7 @@ export function UltimosProductos() {
                 </div>
               </div>
 
-              {/* MODAL */}
+              {/* MODAL DETALLE */}
               <div
                 className="modal fade"
                 id={`modal${p.id}`}
@@ -117,25 +148,54 @@ export function UltimosProductos() {
                 <div className="modal-dialog modal-lg">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h2 className="modal-title" id={`tituloModal${p.id}`}>{p.nombre}</h2>
-                      <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+                      <h2 className="modal-title" id={`tituloModal${p.id}`}>
+                        {p.nombre}
+                      </h2>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="modal"
+                      ></button>
                     </div>
 
                     <div className="modal-body text-center">
-                      <img src={p.imagenUrl} alt={p.nombre} className="img-fluid rounded mb-3" />
+                      <img
+                        src={p.imagenUrl}
+                        alt={p.nombre}
+                        className="img-fluid rounded mb-3"
+                      />
                       <p><strong>Descripción:</strong> {p.descripcion}</p>
                       <p><strong>Precio:</strong> ${Number(p.precio).toLocaleString()} CLP</p>
                       <p><strong>Stock:</strong> {p.stock}</p>
-                      <p><strong>Categoría:</strong>{" "}
+
+                      {p.stock === 0 && (
+                        <p className="text-danger fw-bold">❌ Producto sin stock</p>
+                      )}
+
+                      {p.stock < 5 && p.stock > 0 && (
+                        <p className="text-danger fw-bold">
+                          ⚠️ Quedan pocas unidades
+                        </p>
+                      )}
+
+                      <p>
+                        <strong>Categoría:</strong>{" "}
                         {p.categoria?.nombre || obtenerNombreCategoria(p.categoria_id) || "-"}
                       </p>
                     </div>
 
                     <div className="modal-footer d-flex justify-content-between">
-                      <button className="button1" data-bs-dismiss="modal">Cerrar</button>
+                      <button className="button1" data-bs-dismiss="modal">
+                        Cerrar
+                      </button>
                       <button
                         className="button2"
                         onClick={() => {
+                          if (p.stock === 0) {
+                            mostrarMensaje("❌ No hay stock disponible", "error");
+                            return;
+                          }
+
                           agregarProducto(p);
                           mostrarMensaje(`${p.nombre} agregado al carrito ✅`);
                         }}
@@ -143,6 +203,7 @@ export function UltimosProductos() {
                         Agregar al carrito
                       </button>
                     </div>
+
                   </div>
                 </div>
               </div>
