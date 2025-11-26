@@ -41,71 +41,71 @@ export default function Pago() {
       "Vallenar", "Huasco", "Freirina", "Alto del Carmen"
     ],
     "Coquimbo": [
-      "La Serena","Coquimbo","Andacollo","La Higuera","Paihuano","Vicuña","Illapel","Canela",
-      "Los Vilos","Salamanca","Ovalle","Combarbalá","Monte Patria","Punitaqui","Río Hurtado"
+      "La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paihuano", "Vicuña", "Illapel", "Canela",
+      "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"
     ],
     "Valparaíso": [
-      "Valparaíso","Viña del Mar","Concón","Quintero","Puchuncaví","Casablanca","Juan Fernández",
-      "Isla de Pascua","San Antonio","Cartagena","El Quisco","El Tabo","Algarrobo","Santo Domingo",
-      "San Felipe","Llaillay","Catemu","Panquehue","Putaendo","Santa María","Los Andes","Calle Larga",
-      "Rinconada","San Esteban","Quillota","La Cruz","La Calera","Hijuelas","Nogales","Petorca",
-      "La Ligua","Cabildo","Zapallar","Papudo","Quilpué","Villa Alemana","Limache","Olmué"
+      "Valparaíso", "Viña del Mar", "Concón", "Quintero", "Puchuncaví", "Casablanca", "Juan Fernández",
+      "Isla de Pascua", "San Antonio", "Cartagena", "El Quisco", "El Tabo", "Algarrobo", "Santo Domingo",
+      "San Felipe", "Llaillay", "Catemu", "Panquehue", "Putaendo", "Santa María", "Los Andes", "Calle Larga",
+      "Rinconada", "San Esteban", "Quillota", "La Cruz", "La Calera", "Hijuelas", "Nogales", "Petorca",
+      "La Ligua", "Cabildo", "Zapallar", "Papudo", "Quilpué", "Villa Alemana", "Limache", "Olmué"
     ],
     "Región Metropolitana": [
-      "Santiago","Cerrillos","Cerro Navia","Conchalí","El Bosque","Estación Central","Huechuraba",
-      "Independencia","La Cisterna","La Florida","La Granja","La Pintana","La Reina","Las Condes",
-      "Lo Barnechea","Lo Espejo","Lo Prado","Macul","Maipú","Ñuñoa","Pedro Aguirre Cerda",
-      "Peñalolén","Providencia","Pudahuel","Quilicura","Quinta Normal","Recoleta","Renca",
-      "San Joaquín","San Miguel","San Ramón","Vitacura","Colina","Lampa","Tiltil","Puente Alto",
-      "Pirque","San José de Maipo","San Bernardo","Buin","Paine","Calera de Tango","Melipilla",
-      "Alhué","Curacaví","María Pinto","San Pedro","Talagante","El Monte","Isla de Maipo",
-      "Padre Hurtado","Peñaflor"
+      "Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba",
+      "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes",
+      "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda",
+      "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca",
+      "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Colina", "Lampa", "Tiltil", "Puente Alto",
+      "Pirque", "San José de Maipo", "San Bernardo", "Buin", "Paine", "Calera de Tango", "Melipilla",
+      "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo",
+      "Padre Hurtado", "Peñaflor"
     ],
     "O’Higgins": [
-      "Rancagua","Machalí","Graneros","Mostazal","Codegua","Requínoa","Rengo","Malloa",
-      "San Vicente","Pichidegua","Peumo","Las Cabras","San Fernando","Chimbarongo","Nancagua",
-      "Placilla","Santa Cruz","Lolol","Palmilla","Peralillo","Paredones","Pichilemu","Marchigüe",
-      "Navidad","Litueche","La Estrella"
+      "Rancagua", "Machalí", "Graneros", "Mostazal", "Codegua", "Requínoa", "Rengo", "Malloa",
+      "San Vicente", "Pichidegua", "Peumo", "Las Cabras", "San Fernando", "Chimbarongo", "Nancagua",
+      "Placilla", "Santa Cruz", "Lolol", "Palmilla", "Peralillo", "Paredones", "Pichilemu", "Marchigüe",
+      "Navidad", "Litueche", "La Estrella"
     ],
     "Maule": [
-      "Talca","San Clemente","Pelarco","Pencahue","Maule","San Rafael","Curepto","Constitución",
-      "Empedrado","Curicó","Teno","Romeral","Molina","Sagrada Familia","Hualañé","Licantén",
-      "Vichuquén","Linares","San Javier","Villa Alegre","Yerbas Buenas","Colbún","Longaví","Parral",
+      "Talca", "San Clemente", "Pelarco", "Pencahue", "Maule", "San Rafael", "Curepto", "Constitución",
+      "Empedrado", "Curicó", "Teno", "Romeral", "Molina", "Sagrada Familia", "Hualañé", "Licantén",
+      "Vichuquén", "Linares", "San Javier", "Villa Alegre", "Yerbas Buenas", "Colbún", "Longaví", "Parral",
       "Retiro"
     ],
     "Ñuble": [
-      "Chillán","Chillán Viejo","San Carlos","Coihueco","Ñiquén","San Fabián","San Nicolás",
-      "Pemuco","El Carmen","Pinto","Quillón","Bulnes","San Ignacio","Yungay","Treguaco","Cobquecura",
-      "Ninhue","Quirihue","Portezuelo","Coelemu","Ránquil"
+      "Chillán", "Chillán Viejo", "San Carlos", "Coihueco", "Ñiquén", "San Fabián", "San Nicolás",
+      "Pemuco", "El Carmen", "Pinto", "Quillón", "Bulnes", "San Ignacio", "Yungay", "Treguaco", "Cobquecura",
+      "Ninhue", "Quirihue", "Portezuelo", "Coelemu", "Ránquil"
     ],
     "Biobío": [
-      "Concepción","Talcahuano","Hualpén","Chiguayante","San Pedro de la Paz","Coronel","Lota",
-      "Hualqui","Santa Juana","Tomé","Penco","Los Ángeles","Mulchén","Nacimiento","Negrete",
-      "Santa Bárbara","Quilaco","Quilleco","Antuco","Cabrero","Yumbel","Tucapel","Alto Biobío",
-      "Arauco","Curanilahue","Lebu","Los Álamos","Tirúa","Cañete","Contulmo"
+      "Concepción", "Talcahuano", "Hualpén", "Chiguayante", "San Pedro de la Paz", "Coronel", "Lota",
+      "Hualqui", "Santa Juana", "Tomé", "Penco", "Los Ángeles", "Mulchén", "Nacimiento", "Negrete",
+      "Santa Bárbara", "Quilaco", "Quilleco", "Antuco", "Cabrero", "Yumbel", "Tucapel", "Alto Biobío",
+      "Arauco", "Curanilahue", "Lebu", "Los Álamos", "Tirúa", "Cañete", "Contulmo"
     ],
     "La Araucanía": [
-      "Temuco","Padre Las Casas","Cunco","Melipeuco","Vilcún","Curacautín","Lonquimay","Freire",
-      "Pitrufquén","Gorbea","Loncoche","Villarrica","Pucón","Toltén","Teodoro Schmidt","Saavedra",
-      "Carahue","Nueva Imperial","Galvarino","Lautaro","Perquenco","Victoria","Traiguén","Angol",
-      "Purén","Renaico"
+      "Temuco", "Padre Las Casas", "Cunco", "Melipeuco", "Vilcún", "Curacautín", "Lonquimay", "Freire",
+      "Pitrufquén", "Gorbea", "Loncoche", "Villarrica", "Pucón", "Toltén", "Teodoro Schmidt", "Saavedra",
+      "Carahue", "Nueva Imperial", "Galvarino", "Lautaro", "Perquenco", "Victoria", "Traiguén", "Angol",
+      "Purén", "Renaico"
     ],
     "Los Ríos": [
-      "Valdivia","Corral","Lanco","Los Lagos","Máfil","Mariquina","Paillaco","Panguipulli",
-      "La Unión","Río Bueno","Futrono","Lago Ranco"
+      "Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli",
+      "La Unión", "Río Bueno", "Futrono", "Lago Ranco"
     ],
     "Los Lagos": [
-      "Puerto Montt","Calbuco","Cochamó","Maullín","Puerto Varas","Llanquihue","Fresia","Frutillar",
-      "Los Muermos","Osorno","Río Negro","Purranque","San Juan de la Costa","San Pablo","Castro",
-      "Ancud","Quellón","Dalcahue","Curaco de Vélez","Quinchao","Chonchi"
+      "Puerto Montt", "Calbuco", "Cochamó", "Maullín", "Puerto Varas", "Llanquihue", "Fresia", "Frutillar",
+      "Los Muermos", "Osorno", "Río Negro", "Purranque", "San Juan de la Costa", "San Pablo", "Castro",
+      "Ancud", "Quellón", "Dalcahue", "Curaco de Vélez", "Quinchao", "Chonchi"
     ],
     "Aysén": [
-      "Coyhaique","Puerto Aysén","Cisnes","Guaitecas","Aysén","Lago Verde","Chile Chico",
-      "Río Ibáñez","Cochrane","O’Higgins","Tortel"
+      "Coyhaique", "Puerto Aysén", "Cisnes", "Guaitecas", "Aysén", "Lago Verde", "Chile Chico",
+      "Río Ibáñez", "Cochrane", "O’Higgins", "Tortel"
     ],
     "Magallanes": [
-      "Punta Arenas","Puerto Natales","Porvenir","Cabo de Hornos","Laguna Blanca","Río Verde",
-      "San Gregorio","Primavera","Timaukel"
+      "Punta Arenas", "Puerto Natales", "Porvenir", "Cabo de Hornos", "Laguna Blanca", "Río Verde",
+      "San Gregorio", "Primavera", "Timaukel"
     ]
   };
 
@@ -207,54 +207,54 @@ export default function Pago() {
   };
 
   const procesarPago = async () => {
-  if (!validarTodo()) {
-    alert("Corrige los campos marcados en rojo.");
-    return;
-  }
-
-  if (!metodoPago) return alert("Selecciona un método de pago.");
-  if (carrito.length === 0) return alert("No hay productos.");
-
-  try {
-    setProcesando(true); 
-
-    for (const item of carrito) {
-      await fetch(
-        `http://localhost:8081/api/productos/${item.id}/descontar?cantidad=${item.cantidad}`,
-        { method: "PATCH" }
-      );
+    if (!validarTodo()) {
+      alert("Corrige los campos marcados en rojo.");
+      return;
     }
 
-    // 2️⃣ Crear boleta
-    const res = await fetch("http://localhost:8083/api/pagos/confirmar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nombreCliente: usuario.nombre,
-        correoCliente: usuario.email,
-        telefonoCliente: usuario.telefono,
-        regionCliente: usuario.region,
-        comunaCliente: usuario.comuna,
-        direccionCliente: usuario.direccion,
-        indicacionesEnvio: usuario.infoEnvio,
-        metodoPago,
-        detalles: carrito.map((item) => ({
-          idProducto: item.id,
-          nombre: item.nombre,
-          cantidad: item.cantidad,
-          precioUnitario: item.precio,
-          subtotal: item.precio * item.cantidad,
-          imagenUrl: item.imagenUrl,
-        })),
-        subtotal,
-        iva,
-        total,
-      }),
-    });
+    if (!metodoPago) return alert("Selecciona un método de pago.");
+    if (carrito.length === 0) return alert("No hay productos.");
 
-    const data = await res.json();
+    try {
+      setProcesando(true);
+
+      for (const item of carrito) {
+        await fetch(
+          `http://localhost:8081/api/productos/${item.id}/descontar?cantidad=${item.cantidad}`,
+          { method: "PATCH" }
+        );
+      }
+
+      // 2️⃣ Crear boleta
+      const res = await fetch("http://localhost:8083/api/pagos/confirmar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombreCliente: usuario.nombre,
+          correoCliente: usuario.email,
+          telefonoCliente: usuario.telefono,
+          regionCliente: usuario.region,
+          comunaCliente: usuario.comuna,
+          direccionCliente: usuario.direccion,
+          indicacionesEnvio: usuario.infoEnvio,
+          metodoPago,
+          detalles: carrito.map((item) => ({
+            idProducto: item.id,
+            nombre: item.nombre,
+            cantidad: item.cantidad,
+            precioUnitario: item.precio,
+            subtotal: item.precio * item.cantidad,
+            imagenUrl: item.imagenUrl,
+          })),
+          subtotal,
+          iva,
+          total,
+        }),
+      });
+
+      const data = await res.json();
       const boletaCompleta = {
-        ...data.boleta,    
+        ...data.boleta,
         metodoPago,
         fecha: new Date().toLocaleString("es-CL"),
         subtotal,
@@ -276,10 +276,16 @@ export default function Pago() {
     }
   };
 
-  const subtotal = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-  const iva = Math.round(subtotal * 0.19);
-  const total = subtotal + iva;
+  const total = carrito.reduce(
+    (acc, item) => acc + item.precio * item.cantidad,
+    0
+  );
 
+  // IVA incluido dentro del total
+  const iva = Math.round(total * (19 / 119));
+
+  // Subtotal (neto sin IVA)
+  const subtotal = total - iva;
   return (
     <main className="container mt-5">
 

@@ -24,38 +24,47 @@ import com.inventario.backend_inventario.servicies.ProductoService;
 
 import jakarta.validation.Valid;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/productos")
+@Tag(name = "Productos", description = "Gestión de productos del inventario")
 public class ProductoRestControllers {
 
     @Autowired
     private ProductoService productoServices;
 
+    @Operation(summary = "Crear un producto")
     @PostMapping
     public ResponseEntity<Producto> crearProducto(@Valid @RequestBody Producto producto) {
         Producto nuevoProducto = productoServices.crear(producto);
         return ResponseEntity.ok(nuevoProducto);
     }
 
+    @Operation(summary = "Obtener un producto por ID")
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
         Producto producto = productoServices.obtenerId(id);
         return ResponseEntity.ok(producto);
     }
 
+    @Operation(summary = "Listar todos los productos")
     @GetMapping
     public ResponseEntity<List<Producto>> listarProductos() {
         List<Producto> productos = productoServices.listarTodas();
         return ResponseEntity.ok(productos);
     }
 
+    @Operation(summary = "Eliminar un producto")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
         productoServices.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar un producto")
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id,
             @Valid @RequestBody Producto productoActualizado) {
@@ -63,11 +72,13 @@ public class ProductoRestControllers {
         return ResponseEntity.ok(producto);
     }
 
+    @Operation(summary = "Desactivar un producto")
     @PatchMapping("/{id}/desactivar")
     public ResponseEntity<Producto> desactivar(@PathVariable Long id) {
         return ResponseEntity.ok(productoServices.desactivar(id));
     }
 
+    @Operation(summary = "Validar stock disponible de un producto")
     @GetMapping("/{id}/validar")
     public ResponseEntity<Integer> validarStock(@PathVariable("id") Long idProducto) {
         Producto producto = productoServices.obtenerId(idProducto);
@@ -79,6 +90,7 @@ public class ProductoRestControllers {
         return ResponseEntity.ok(producto.getStock().intValue());
     }
 
+    @Operation(summary = "Subir imagen de un producto")
     @PostMapping("/{id}/imagen")
     public ResponseEntity<?> subirImagen(
             @PathVariable Long id,
@@ -104,6 +116,7 @@ public class ProductoRestControllers {
         }
     }
 
+    @Operation(summary = "Buscar productos por nombre o categoría")
     @GetMapping("/buscar")
     public ResponseEntity<List<Producto>> buscar(@RequestParam(required = false) String nombre,
             @RequestParam(required = false) String categoria) {
@@ -123,12 +136,14 @@ public class ProductoRestControllers {
         return ResponseEntity.ok(productos);
     }
 
+    @Operation(summary = "Obtener productos con stock bajo")
     @GetMapping("/alertas-stock")
     public ResponseEntity<List<Producto>> obtenerProductosConStockBajo() {
         List<Producto> productos = productoServices.listarStockBajo();
         return ResponseEntity.ok(productos);
     }
 
+    @Operation(summary = "Descontar stock de un producto")
     @PatchMapping("/{id}/descontar")
     public ResponseEntity<?> descontarStock(
             @PathVariable Long id,

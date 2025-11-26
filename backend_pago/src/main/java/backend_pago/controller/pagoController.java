@@ -15,26 +15,30 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/pagos")
+@Tag(name = "Pagos", description = "Gestión de pagos y boletas")
 public class pagoController {
 
     @Autowired
     private pagoService pagoService;
 
+    @Operation(summary = "Preflight CORS para confirmar pago")
     @RequestMapping(value = "/confirmar", method = RequestMethod.OPTIONS)
     public ResponseEntity<Void> preflight() {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Confirmar un pago y generar boleta")
     @PostMapping("/confirmar")
     public ResponseEntity<Map<String, Object>> confirmarPago(@RequestBody PagoRequest request) {
 
-        // ===== CREAR PAGO =====
         Pago pago = new Pago();
         pago.setMetodoPago(request.getMetodoPago());
 
-        // ===== CREAR BOLETA =====
         Boleta boleta = new Boleta();
         boleta.setNombreCliente(request.getNombreCliente());
         boleta.setCorreoCliente(request.getCorreoCliente());
@@ -60,8 +64,7 @@ public class pagoController {
             det.setPrecioUnitario(d.getPrecioUnitario());
             det.setImagenUrl(d.getImagenUrl());
 
-            // Cálculo
-            double sub = d.getCantidad() * d.getPrecioUnitario();
+            double sub = d.getCantidad() * d.getPrecioUnitario(); // precio YA incluye IVA
             det.setSubtotal(sub);
             subtotal += sub;
 
@@ -69,11 +72,15 @@ public class pagoController {
             detalles.add(det);
         }
 
-        // ===== CALCULAR TOTALES =====
-        double iva = Math.round(subtotal * 0.19);
-        double total = subtotal + iva;
+        // =============================
+        // CÁLCULO CORRECTO DEL IVA
+        // =============================
+        double iva = Math.round(subtotal * (19.0 / 119.0));
+        double total = subtotal;        // total ya incluye IVA
+        double neto = subtotal - iva;   // neto sin IVA (solo referencia, no se guarda)
 
-        pago.setSubtotal(subtotal);
+        // Si quieres guardar el neto real deberías usar pago.setSubtotal(neto)
+        pago.setSubtotal(subtotal); 
         pago.setIva(iva);
         pago.setTotal(total);
 
@@ -89,7 +96,7 @@ public class pagoController {
         return ResponseEntity.ok(response);
     }
 
- 
+    @Operation(summary = "Obtener todos los pagos")
     @GetMapping
     public ResponseEntity<List<Pago>> obtenerTodosLosPagos() {
         return ResponseEntity.ok(pagoService.obtenerTodos());

@@ -18,26 +18,33 @@ import com.backend.backend_usuario.services.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
+@Tag(name = "Usuarios", description = "Gestión de usuarios, login y administración")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final JwtUtil jwtUtil;
 
+    @Operation(summary = "Crear un nuevo usuario")
     @PostMapping
     public ResponseEntity<Usuario> crearUsuario(@Valid @RequestBody SolicitudCrearUsuario req) {
         Usuario nuevo = usuarioService.crear(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
+    @Operation(summary = "Obtener usuario por ID")
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
         Usuario usuario = usuarioService.obtenerPorId(id);
         return ResponseEntity.ok(usuario);
     }
 
+    @Operation(summary = "Iniciar sesión y obtener un token JWT")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
         String email = req.get("email");
@@ -49,6 +56,7 @@ public class UsuarioController {
         }
 
         Usuario usuario = usuarioService.buscarPorEmail(email);
+
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Usuario no encontrado"));
@@ -83,12 +91,14 @@ public class UsuarioController {
         return ResponseEntity.ok(respuesta);
     }
 
+    @Operation(summary = "Listar todos los usuarios")
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.listarTodos();
         return ResponseEntity.ok(usuarios);
     }
 
+    @Operation(summary = "Actualizar usuario (modo administrador)")
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> actualizarUsuario(
             @PathVariable Long id,
@@ -98,31 +108,35 @@ public class UsuarioController {
         return ResponseEntity.ok(actualizado);
     }
 
+    @Operation(summary = "Eliminar usuario")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
-
+    @Operation(summary = "Desactivar usuario (cambiar estado)")
     @PatchMapping("/{id}/desactivar")
     public ResponseEntity<Usuario> desactivarUsuario(@PathVariable Long id) {
         Usuario desactivado = usuarioService.desactivar(id);
         return ResponseEntity.ok(desactivado);
     }
 
+    @Operation(summary = "Listar usuarios activos")
     @GetMapping("/activos")
     public ResponseEntity<List<Usuario>> listarActivos() {
         List<Usuario> activos = usuarioService.listarActivos();
         return ResponseEntity.ok(activos);
     }
 
+    @Operation(summary = "Listar usuarios inactivos")
     @GetMapping("/inactivos")
     public ResponseEntity<List<Usuario>> listarInactivos() {
         List<Usuario> inactivos = usuarioService.listarInactivos();
         return ResponseEntity.ok(inactivos);
     }
 
+    @Operation(summary = "Actualizar perfil del usuario (autogestión)")
     @PatchMapping("/{id}/perfil")
     public ResponseEntity<Usuario> actualizarPerfil(
             @PathVariable Long id,
