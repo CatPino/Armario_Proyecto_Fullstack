@@ -1,4 +1,5 @@
 package com.backend.backend_usuario.controller;
+
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -11,14 +12,19 @@ import com.backend.backend_usuario.services.RolServicelmpl;
 
 import lombok.RequiredArgsConstructor;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/roles")
 @CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
+@Tag(name = "Roles", description = "Gestión de roles de usuario")
 public class RolController {
 
     private final RolServicelmpl rolService;
 
+    @Operation(summary = "Crear un rol")
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody Rol req) {
         try {
@@ -31,12 +37,13 @@ public class RolController {
         }
     }
 
+    @Operation(summary = "Listar todos los roles")
     @GetMapping
     public ResponseEntity<List<Rol>> listar(@RequestParam(required = false) String q) {
         return ResponseEntity.ok(rolService.listar(q));
     }
 
-
+    @Operation(summary = "Obtener rol por ID")
     @GetMapping("/{id}")
     public ResponseEntity<?> obtener(@PathVariable Long id) {
         try {
@@ -47,6 +54,7 @@ public class RolController {
         }
     }
 
+    @Operation(summary = "Actualizar rol")
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Rol req) {
         try {
@@ -59,11 +67,12 @@ public class RolController {
         }
     }
 
+    @Operation(summary = "Eliminar rol")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
             rolService.eliminar(id);
-            return ResponseEntity.noContent().build(); // 204
+            return ResponseEntity.noContent().build();
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (IllegalArgumentException e) {
