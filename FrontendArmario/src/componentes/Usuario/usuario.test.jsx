@@ -1,12 +1,9 @@
-// ===========================
-// MOCKS NECESARIOS
-// ===========================
+
 import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { Usuario } from "./Usuario";
 
-// mock bootstrap.Modal
 global.bootstrap = {
   Modal: class {
     constructor() {}
@@ -18,17 +15,13 @@ global.bootstrap = {
   },
 };
 
-// mock confirm()
 global.confirm = vi.fn(() => true);
 
-// mock ModalUsuario para no depender de él
+
 vi.mock("./ModalUsuario", () => ({
   ModalUsuario: () => <div data-testid="modal-usuario" />
 }));
 
-// ===========================
-// MOCK de FETCH
-// ===========================
 global.fetch = vi.fn((url) => {
   if (url.includes("usuarios")) {
     return Promise.resolve({

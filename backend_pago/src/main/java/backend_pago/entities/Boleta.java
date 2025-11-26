@@ -33,8 +33,8 @@ public class Boleta {
     @OneToOne
     @JoinColumn(name = "pago_id", referencedColumnName = "idPago")
     @JsonIgnoreProperties("boleta")  
-    @ToString.Exclude              // ⛔ Evita loops
-    @EqualsAndHashCode.Exclude     // ⛔ Evita recursión infinita
+    @ToString.Exclude            
+    @EqualsAndHashCode.Exclude     
     private Pago pago;
 
     // Relación 1:N con DetalleBoleta

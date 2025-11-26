@@ -39,20 +39,32 @@ public class pagoServiceImpl implements pagoService {
     }
 
     @Override
-    public Pago crearPago(Pago pago, Boleta boleta, List<DetalleBoleta> detalles) {
-        pago.setFechaPago(LocalDateTime.now());
-        Pago pagoGuardado = pagoRepository.save(pago);
+public Pago crearPago(Pago pago, Boleta boleta, List<DetalleBoleta> detalles) {
 
-        boleta.setPago(pagoGuardado);
-        Boleta boletaGuardada = boletaRepository.save(boleta);
+    double subtotal = detalles.stream()
+            .mapToDouble(DetalleBoleta::getSubtotal)
+            .sum();
 
-        for (DetalleBoleta detalle : detalles) {
-            detalle.setBoleta(boletaGuardada);
-            detalleBoletaRepository.save(detalle);
-        }
+    double iva = Math.round(subtotal * 0.19);
+    double total = subtotal + iva;
 
-        return pagoGuardado;
+    pago.setFechaPago(LocalDateTime.now());
+    pago.setSubtotal(subtotal);
+    pago.setIva(iva);
+    pago.setTotal(total);
+
+    Pago pagoGuardado = pagoRepository.save(pago);
+
+    boleta.setPago(pagoGuardado);
+    Boleta boletaGuardada = boletaRepository.save(boleta);
+
+    for (DetalleBoleta detalle : detalles) {
+        detalle.setBoleta(boletaGuardada);
+        detalleBoletaRepository.save(detalle);
     }
+
+    return pagoGuardado;
+}
 
     @Override
     public void eliminarPago(Long idPago) {

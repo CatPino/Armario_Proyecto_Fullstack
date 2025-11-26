@@ -22,6 +22,8 @@ public class Pago {
     private Long idPago;
 
     private String metodoPago;
+    private Double subtotal;
+    private Double iva;
     private Double total;
     private LocalDateTime fechaPago = LocalDateTime.now();
 

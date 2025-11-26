@@ -174,19 +174,38 @@ export function Navbar() {
               </li>
 
               {(rol === "admin" || rol === "administrador") && (
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/inventario">
-                      Inventario
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/usuario">
-                      Usuarios
-                    </Link>
-                  </li>
-                </>
+                <li className="nav-item dropdown">
+                  <Link
+                    className="nav-link dropdown-toggle"
+                    to="#"
+                    data-bs-toggle="dropdown"
+                  >
+                    Administración
+                  </Link>
+
+                  <ul className="dropdown-menu">
+                    <li>
+                      <Link className="dropdown-item" to="/inventario">
+                        Inventario
+                      </Link>
+                    </li>
+
+                    <li>
+                      <Link className="dropdown-item" to="/usuario">
+                        Usuarios
+                      </Link>
+                    </li>
+
+                    <li>
+                      <Link className="dropdown-item" to="/ordenes">
+                        Órdenes
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
               )}
+
+                            
             </ul>
           </div>
         </div>
