@@ -308,7 +308,7 @@ export default function Pago() {
                   <th>Producto</th>
                   <th>Precio</th>
                   <th>Cantidad</th>
-                  <th>Subtotal</th>
+                  <th>Total</th>
                 </tr>
               </thead>
 
